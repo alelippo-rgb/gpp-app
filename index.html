@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gestionale Presenze e Partite Club</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1d4ed8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body{background:#eef2f7;min-height:100vh;padding-bottom:64px}
+header{background:radial-gradient(circle at 20% 15%,#3b4bd8 0%,#1e2a8a 55%,#0b1035 100%);color:#fff;padding:14px 16px;text-align:center;border-radius:0 0 20px 20px;position:relative}
+header .logo{width:44px;height:44px;border-radius:50%;background:#fff;color:#1e2a8a;font-weight:900;font-size:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;border:3px solid #facc15}
+header h1{font-size:16px;font-weight:800}
+header p{font-size:11px;color:#fde047;font-weight:700}
+header .back{position:absolute;left:10px;top:14px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer}
+header .esci{position:absolute;right:10px;top:14px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:12px}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e2e8f0;display:flex;z-index:30}
+nav button{flex:1;padding:8px 0 6px;border:none;background:none;cursor:pointer;color:#64748b;font-size:10px;font-weight:700}
+nav button .ic{display:block;font-size:17px;margin-bottom:2px}
+nav button.on{color:#c8102e;background:#fde8ec;border-radius:12px}
+main{padding:12px;max-width:960px;margin:0 auto}
+.card{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.card h2{font-size:15px;color:#1e3a8a;margin-bottom:10px}
+label{display:block;font-size:12px;font-weight:600;color:#475569;margin:8px 0 4px}
+input,select,textarea{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px;background:#fff}
+.btn{width:100%;padding:12px;border:none;border-radius:10px;background:#1d4ed8;color:#fff;font-weight:700;font-size:15px;cursor:pointer;margin-top:10px}
+.btn.sec{background:#e2e8f0;color:#334155}.btn.ok{background:#16a34a}.btn.danger{background:#dc2626}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.hidden{display:none !important}
+.spin{color:#64748b;text-align:center;padding:24px;font-size:14px}
+.msg{padding:10px;border-radius:10px;font-size:13px;font-weight:600;margin-top:8px}
+.msg.ok{background:#dcfce7;color:#166534}.msg.err{background:#fee2e2;color:#991b1b}
+.vb{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;margin:2px}
+.vb.verde{background:#dcfce7;color:#166534}.vb.giallo{background:#fef3c7;color:#92400e}.vb.rosso{background:#fee2e2;color:#991b1b}.vb.blu{background:#dbeafe;color:#1e40af}
+.homeGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hcard{border:none;border-radius:16px;padding:20px 8px;text-align:center;cursor:pointer;color:#fff;font-weight:800;font-size:13px;box-shadow:0 3px 10px rgba(0,0,0,.15);display:flex;flex-direction:column;align-items:center;gap:8px}
+.hcard .ic{font-size:24px}
+.hcard.light{background:#f8fafc;color:#1e3a8a;border:1px solid #e2e8f0;box-shadow:none}
+.c-red{background:linear-gradient(135deg,#ef4444,#b91c1c)}.c-blue{background:linear-gradient(135deg,#3b82f6,#1d4ed8)}
+.c-green{background:linear-gradient(135deg,#10b981,#047857)}.c-orange{background:linear-gradient(135deg,#f59e0b,#b45309)}
+.c-purple{background:linear-gradient(135deg,#a78bfa,#7c3aed)}.c-cyan{background:linear-gradient(135deg,#38bdf8,#0369a1)}
+.quick{display:flex;gap:6px}.quick button{flex:1;padding:9px;border:none;border-radius:8px;background:#e2e8f0;font-weight:700;cursor:pointer;font-size:13px}
+.calHead{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.calHead button{width:38px;height:34px;border:none;border-radius:8px;background:#e2e8f0;font-size:16px;cursor:pointer}
+.calHead span{font-weight:700;color:#1e3a8a;font-size:14px}
+.calGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px}
+.calDow{font-size:11px;color:#64748b;text-align:center;font-weight:700}
+.calCell{padding:10px 0;text-align:center;border-radius:10px;background:#f1f5f9;cursor:pointer;font-weight:600;font-size:14px;position:relative}
+.calCell.sel{background:#1d4ed8;color:#fff}
+.calCell.dot::after{content:"";position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;background:#16a34a}
+.calCell.empty{background:transparent;cursor:default}
+.attBar{display:flex;align-items:center;gap:8px;margin-top:10px}
+.attBar .cnt{flex:1;font-weight:800;color:#1e3a8a}
+.attBar button{padding:9px 12px;border:none;border-radius:8px;background:#e2e8f0;font-weight:700;cursor:pointer;font-size:12px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;margin-top:10px}
+.pcard{position:relative;border-radius:14px;padding:12px 6px 8px;text-align:center;cursor:pointer;border:2px solid #e2e8f0;background:#fff;user-select:none}
+.pcard.on{border-color:#16a34a;background:#f0fdf4}.pcard.off{border-color:#fca5a5;background:#fef2f2}
+.pcard .av{width:42px;height:42px;border-radius:50%;margin:0 auto 5px;background:#1d4ed8;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;background-size:cover;background-position:center;overflow:hidden}
+.pcard .nm{font-size:11px;font-weight:700;line-height:1.2;overflow:hidden}
+.pcard .st{font-size:10px;font-weight:800;margin-top:2px}
+.pcard.on .st{color:#166534}.pcard.off .st{color:#991b1b}
+.pcard .gear{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.06);border:none;border-radius:50%;width:24px;height:24px;font-size:12px;cursor:pointer}
+.motivoSel{width:100%;margin-top:6px;padding:5px 4px;font-size:11px;border-radius:8px;border:1px solid #fca5a5;background:#fff;color:#991b1b;font-weight:600}
+.noteIn{width:100%;margin-top:5px;padding:5px;font-size:10px;border-radius:8px;border:1px solid #fca5a5}
+.miniRow{display:flex;gap:4px;margin-top:6px;justify-content:center}
+.miniChip{padding:5px 9px;border-radius:999px;border:1px solid #cbd5e1;background:#fff;font-size:11px;font-weight:700;cursor:pointer;color:#475569}
+.miniChip.on{background:#10b981;border-color:#10b981;color:#fff}
+.miniChip.ap.on{background:#3b82f6;border-color:#3b82f6}
+.saveBar{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:10px;margin-top:12px}
+.saveBar .btn{margin:0}
+.sheet{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin-top:12px}
+.sheetHead{display:flex;justify-content:space-between;align-items:center;font-weight:800;color:#1e3a8a;margin-bottom:10px}
+.sheetHead button{border:none;background:#f1f5f9;border-radius:8px;width:32px;height:32px;cursor:pointer}
+.chipRow{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:6px 10px;border-radius:999px;border:1px solid #cbd5e1;background:#fff;font-size:12px;font-weight:600;cursor:pointer;color:#475569}
+.chip.on{background:#10b981;border-color:#10b981;color:#fff}
+.pitem{display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid #f1f5f9;cursor:pointer}
+.pitem:last-child{border:none}
+.pavatar{width:44px;height:44px;border-radius:50%;background:#1d4ed8;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex:0 0 44px;overflow:hidden;background-size:cover;background-position:center}
+.pmid{flex:1;min-width:0}.pname{font-weight:600;font-size:14px}
+.delBtn{background:#fee2e2;color:#991b1b;border:none;border-radius:10px;padding:10px 14px;font-size:16px;cursor:pointer;min-width:42px;min-height:42px}
+.fotoPrev{width:76px;height:76px;border-radius:50%;background:#e2e8f0;margin:8px auto;display:flex;align-items:center;justify-content:center;background-size:cover;background-position:center;color:#94a3b8;font-size:28px;overflow:hidden}
+details summary{cursor:pointer;font-weight:700;color:#1e3a8a;font-size:14px;padding:6px 0}
+.linkPiccolo{display:block;text-align:center;font-size:12px;color:#64748b;margin-top:10px;cursor:pointer;text-decoration:underline}
+.partCard{border-left:5px solid #1d4ed8;border-radius:12px;background:#fff;padding:12px;margin-bottom:10px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.partCard.live{border-left-color:#dc2626;background:#fef2f2}
+.partCard .pcTop{display:flex;justify-content:space-between;font-size:12px;color:#64748b;font-weight:600}
+.partCard .pcTeams{display:flex;align-items:center;gap:8px;margin-top:6px;font-weight:800;font-size:15px}
+.partCard .pcScore{margin-left:auto;background:#1e3a8a;color:#fff;border-radius:8px;padding:4px 10px;font-weight:800}
+.formRow{display:flex;align-items:center;gap:8px;padding:9px 4px;border-bottom:1px solid #f1f5f9;flex-wrap:wrap}
+.formRow .fn{flex:1;font-weight:600;font-size:14px;min-width:110px}
+.formRow .num{width:34px;height:34px;border-radius:50%;background:#1e3a8a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex:0 0 34px}
+.st3{display:flex;gap:4px}
+.st3 button{padding:6px 8px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;font-size:11px;font-weight:700;cursor:pointer;color:#475569}
+.st3 button.on{background:#1d4ed8;border-color:#1d4ed8;color:#fff}
+.stepper{display:flex;align-items:center;gap:6px}
+.stepper button{width:30px;height:30px;border:none;border-radius:8px;background:#e2e8f0;font-size:16px;font-weight:800;cursor:pointer}
+.stepper span{min-width:26px;text-align:center;font-weight:800;color:#1e3a8a}
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.kpi div{background:#fff;border-radius:12px;padding:10px 4px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.kpi b{display:block;font-size:18px;color:#1e3a8a}.kpi small{font-size:9px;color:#64748b;font-weight:700}
+table.rep{width:100%;border-collapse:collapse;font-size:12px}
+table.rep th,table.rep td{border:1px solid #e2e8f0;padding:5px 6px;text-align:center}
+table.rep th{background:#1e3a8a;color:#fff}
+table.rep td.nome{text-align:left;font-weight:600;white-space:nowrap}
+td.ok{background:#dcfce7;color:#166534;font-weight:700}td.ko{background:#fee2e2;color:#991b1b;font-weight:700}td.na{background:#f1f5f9;color:#94a3b8}
+.scrollX{overflow-x:auto}
+.bar{background:#e2e8f0;border-radius:999px;height:14px;overflow:hidden;margin:3px 0}
+.bar i{display:block;height:100%;background:#16a34a;border-radius:999px}
+.bar.gol i{background:#f59e0b}
+.grow{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.grow .gn{width:130px;font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden}
+.grow .gv{width:34px;font-size:12px;font-weight:800;color:#1e3a8a;text-align:right}
+.grow .bar{flex:1}
+.calItem{display:flex;gap:10px;align-items:center;padding:10px;border-bottom:1px solid #f1f5f9}
+.calItem .d{width:52px;text-align:center;font-weight:800;color:#1e3a8a;font-size:13px;flex:0 0 52px}
+.calItem .d small{display:block;font-size:10px;color:#64748b}
+.liveTop{background:#0b1f33;color:#fff;border-radius:14px;padding:12px;text-align:center}
+.liveClock{font-size:44px;font-weight:900;color:#4ade80;font-variant-numeric:tabular-nums;line-height:1}
+.liveRest{font-size:15px;font-weight:800;color:#f87171;margin-top:2px}
+.liveBadge{display:inline-block;background:#d1fae5;color:#065f46;font-weight:800;font-size:12px;border-radius:999px;padding:4px 12px;margin-top:6px}
+.liveBtns{display:flex;gap:6px;margin-top:10px}
+.liveBtns button{flex:1;padding:14px 4px;border:none;border-radius:12px;font-weight:900;font-size:15px;cursor:pointer;color:#fff}
+.liveInfo{font-size:12px;font-weight:700;margin-top:8px;line-height:1.5}
+.liveInfo .g{color:#4ade80}.liveInfo .r{color:#f87171}.liveInfo .b{color:#60a5fa}
+.liveScore{font-size:20px;font-weight:900;margin-top:6px}
+.liveGol{font-size:12px;color:#cbd5e1;margin-top:2px}
+.pitch{background:linear-gradient(90deg,#2e7d32 0 12%,#388e3c 12% 25%,#2e7d32 25% 37%,#388e3c 37% 50%,#2e7d32 50% 62%,#388e3c 62% 75%,#2e7d32 75% 87%,#388e3c 87% 100%);border:3px solid #fff;border-radius:10px;padding:14px 8px;margin-top:12px;min-height:260px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-content:flex-start}
+.pall{width:64px;text-align:center;cursor:pointer}
+.pall .c{width:46px;height:46px;border-radius:50%;margin:0 auto;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:16px;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.pall .t{font-size:9px;font-weight:800;color:#fff;margin-top:3px;text-shadow:0 1px 2px #000}
+.pall.in .c{background:#10b981}.pall.pan .c{background:#3b82f6}.pall.out .c{background:#ef4444}
+.liveBar{display:flex;gap:6px;margin-top:12px}
+.liveBar button{flex:1;padding:12px 4px;border:none;border-radius:12px;background:#1e3a8a;color:#fff;font-weight:800;font-size:12px;cursor:pointer}
+.evList{margin-top:10px;max-height:160px;overflow:auto}
+.evItem{display:flex;justify-content:space-between;padding:7px 4px;border-bottom:1px solid #f1f5f9;font-size:13px}
+.subSlot{border:1px solid #e2e8f0;border-radius:12px;padding:10px;margin-bottom:8px;background:#f8fafc}
+.subSlot .sn{font-weight:800;color:#1e3a8a;font-size:12px;margin-bottom:6px}
+.bigBtns{display:flex;gap:8px}
+.bigBtns .btn{margin:0}
+@media print{nav,header,.noPrint{display:none!important}body{padding:0}}
+</style>
+</head>
+<body>
+<header>
+  <button class="back hidden" id="btnBack" onclick="goBack()">←</button>
+  <button class="esci hidden" id="btnLogout" onclick="logout()">Esci</button>
+  <div class="logo">B</div>
+  <h1>A.S.D. Borgaro - Under 14</h1>
+  <p>Stagione 2026/2027</p>
+</header>
+<nav id="nav" class="hidden">
+  <button id="nbHome" class="on" onclick="goHome()"><span class="ic">🏠</span>Home</button>
+  <button id="nbCal" onclick="showTab('cal')"><span class="ic">📅</span>Cal</button>
+  <button id="nbPres" onclick="showTab('pres')"><span class="ic">👥</span>Pres</button>
+  <button id="nbPart" onclick="showTab('part')"><span class="ic">⚽</span>Part</button>
+  <button id="nbReg" onclick="showTab('reg')"><span class="ic">📊</span>Reg</button>
+</nav>
+<main>
+  <div id="viewAuth">
+    <div class="card"><h2>Accedi</h2><label>Email</label><input type="email" id="logEmail"><label>Password</label><input type="password" id="logPass"><button class="btn" onclick="doLogin()">Entra</button><div id="logMsg"></div></div>
+    <div class="card"><h2>Crea la tua società</h2><label>Email</label><input type="email" id="regEmail"><label>Password (min 6)</label><input type="password" id="regPass"><label>Nome società</label><input type="text" id="regClub"><label>Tuo nome</label><input type="text" id="regName"><button class="btn ok" onclick="doRegister()">Crea società e account</button><div id="regMsg"></div></div>
+  </div>
+  <div id="viewOnboard" class="hidden"><div class="card"><h2>Completa registrazione</h2><label>Nome società</label><input type="text" id="obClub"><label>Tuo nome</label><input type="text" id="obName"><button class="btn ok" onclick="doOnboard()">Crea la società</button><div id="obMsg"></div></div></div>
+
+  <div id="viewHome" class="hidden">
+    <div class="homeGrid">
+      <button class="hcard c-red" onclick="showTab('part')"><span class="ic">⚽</span>Partite & Live</button>
+      <button class="hcard c-blue" onclick="showTab('doc')"><span class="ic">📋</span>Convocazioni</button>
+      <button class="hcard c-green" onclick="showTab('doc')"><span class="ic">📑</span>Distinta</button>
+      <button class="hcard light" onclick="showTab('cal')"><span class="ic">📅</span>Calendario</button>
+      <button class="hcard c-orange" onclick="showTab('pres')"><span class="ic">✅</span>Presenze</button>
+      <button class="hcard c-purple" onclick="showTab('reg')"><span class="ic">📊</span>Registro</button>
+      <button class="hcard c-orange" onclick="showTab('part')"><span class="ic">🔄</span>Sostituzioni</button>
+      <button class="hcard c-green" onclick="showTab('part')"><span class="ic">🧩</span>Formazione</button>
+      <button class="hcard c-cyan" onclick="showTab('foto')"><span class="ic">📷</span>Foto</button>
+      <button class="hcard light" onclick="showTab('rosa')"><span class="ic">👥</span>Rosa</button>
+      <button class="hcard light" onclick="showTab('set')"><span class="ic">⚙️</span>Impostazioni</button>
+    </div>
+  </div>
+
+  <div id="viewPres" class="hidden">
+    <div class="card"><h2>Presenze allenamento</h2>
+      <div class="quick"><button onclick="quickDay(-1)">Ieri</button><button onclick="quickDay(0)">Oggi</button><button onclick="quickDay(1)">Domani</button></div>
+      <div class="calHead"><button onclick="calPrev()">‹</button><span id="calTitle"></span><button onclick="calNext()">›</button></div>
+      <div class="calGrid" id="calWrap"></div><input type="hidden" id="attDate">
+      <div class="row"><div><label>Luogo</label><select id="attPlace"></select></div><div><label>Tipo</label><select id="attKind"><option>Tecnico</option><option>Tattico</option><option>Fisico</option><option>Partitella</option><option>Altro</option></select></div></div>
+      <div class="row"><div><label>Orario</label><input type="time" id="attTime"></div><div><label>Note</label><input type="text" id="attNotes"></div></div>
+      <button class="btn sec" onclick="showPresReport()">📊 Vedi classifica</button>
+    </div>
+    <div class="card hidden" id="attCard"><h2>Seduta — <span id="attDateLbl"></span></h2>
+      <div class="attBar"><span class="cnt" id="attCount"></span><button onclick="setAll(true)">Tutti ✅</button><button onclick="setAll(false)">Tutti ❌</button></div>
+      <div class="pgrid" id="attGrid"></div></div>
+    <div class="saveBar hidden" id="saveBarPres"><button class="btn ok" onclick="saveAttendance()">💾 Salva presenze</button></div>
+    <div class="sheet hidden" id="sheetPres"><div class="sheetHead"><span id="shName"></span><button onclick="closeSheet()">✕</button></div><div id="sheetBody"></div></div>
+    <div class="card hidden" id="presRepCard"><h2>Classifica + Matrice</h2><div class="scrollX" id="repClass"></div><div class="scrollX" id="repMatrix" style="margin-top:10px"></div><button class="btn sec" onclick="hidePresReport()">← Torna</button></div>
+  </div>
+
+  <div id="viewPart" class="hidden">
+    <div id="partHub">
+      <div class="card hidden" id="hubLive" style="background:#fde8ec;border:1px solid #f5b5c0">
+        <b id="hubLiveTxt" style="color:#c8102e"></b>
+        <div class="bigBtns" style="margin-top:8px"><button class="btn ok" onclick="resumeHubLive()">▶ Riprendi LIVE</button><button class="btn danger" onclick="stopLive()">⏹ Chiudi</button></div>
+      </div>
+      <div class="card"><h2>Nuova partita</h2>
+        <div class="bigBtns"><button class="btn danger" onclick="openLivePicker()">🔴 Avvia LIVE</button><button class="btn sec" onclick="openManualNew()">📥 Partita precedente</button></div>
+      </div>
+      <div class="card"><h2>Partite</h2><div id="partList"><div class="spin">Caricamento…</div></div></div>
+    </div>
+
+    <div id="partLive" class="hidden">
+      <div class="liveTop">
+        <div class="liveClock" id="lvClock">00:00</div>
+        <div class="liveRest" id="lvRest">Restanti 35:00</div>
+        <span class="liveBadge" id="lvHalf">1° Tempo</span>
+        <div class="liveBtns"><button style="background:#16a34a" id="lvPlay" onclick="toggleLive()">▶ AVVIA</button><button style="background:#64748b" onclick="nextHalfLive()">⏭ 2°T</button><button style="background:#dc2626" onclick="stopLive()">⏹ STOP</button></div>
+        <div class="liveInfo"><span class="g" id="lvT1">1°T 0'</span> · <span class="g" id="lvT2">2°T 0'</span> · <span class="g" id="lvTot">TOT 0'</span><br><span class="r" id="lvRec">Rec 1°T +0' · Rec 2°T +0'</span><br><span class="b" id="lvReal">Tempo reale: 00:00</span></div>
+        <div class="liveScore" id="lvScore">BORGARO 0-0 —</div>
+        <div class="liveGol" id="lvGolList">Nessun gol</div>
+      </div>
+      <div class="pitch" id="lvPitch"></div>
+      <div class="liveBar"><button onclick="openSubSheet()">🔄 Sostituz.</button><button onclick="openEventSheet()">⚽ Eventi</button><button onclick="saveLiveToMatch()">💾 Salva</button><button onclick="showPartHub()">✕ Esci</button></div>
+      <div class="card"><h2>Eventi</h2><div class="evList" id="lvEvents"></div></div>
+      <div class="sheet hidden" id="sheetLive"><div class="sheetHead"><span id="shLiveName"></span><button onclick="closeLiveSheet()">✕</button></div><div id="sheetLiveBody"></div></div>
+    </div>
+
+    <div id="partManual" class="hidden">
+      <div class="card"><h2 id="pmTitle">Partita precedente</h2>
+        <div class="quick"><button onclick="pmQuick(-1)">Ieri</button><button onclick="pmQuick(0)">Oggi</button><button onclick="pmQuick(1)">Domani</button></div>
+        <div class="calHead"><button onclick="pmCalPrev()">‹</button><span id="pmCalTitle"></span><button onclick="pmCalNext()">›</button></div>
+        <div class="calGrid" id="pmCalWrap"></div><input type="hidden" id="pmDate">
+        <div class="row"><div><label>Avversario</label><select id="pmOpp"></select></div><div><label>Campo</label><select id="pmHome"><option value="true">Casa</option><option value="false">Trasferta</option></select></div></div>
+        <div class="row"><div><label>Competizione</label><select id="pmComp"><option>Campionato</option><option>Coppa</option><option>Amichevole</option><option>Torneo</option></select></div><div><label>Luogo</label><select id="pmPlace"></select></div></div>
+        <div class="row"><div><label>Orario</label><input type="time" id="pmTime"></div><div><label>O altro avversario</label><input type="text" id="pmOppFree" placeholder="scrivi qui…"></div></div>
+        <div class="row"><div><label>Gol noi</label><input type="number" id="pmGolHome"></div><div><label>Gol loro</label><input type="number" id="pmGolAway"></div></div>
+        <button class="btn" onclick="pmSaveBase()">💾 Salva dati partita</button>
+      </div>
+      <div class="card" id="pmRosterCard" class="hidden"><h2>Formazione & marcatori</h2><div id="pmRoster"><div class="spin">Salva prima i dati partita</div></div></div>
+      <div class="card" id="pmSubCard"><h2>Sostituzioni</h2><div id="pmSubs"></div><button class="btn sec" onclick="addPmSubSlot()">＋ Aggiungi slot</button><button class="btn ok" onclick="pmSaveSubs()">💾 Salva sostituzioni</button></div>
+      <button class="btn sec" onclick="showPartHub()">← Torna all'elenco</button>
+    </div>
+  </div>
+
+  <div id="viewCal" class="hidden"><div class="card"><h2>Calendario</h2><div id="calList"><div class="spin">Caricamento…</div></div></div></div>
+  <div id="viewSub" class="hidden"><div class="card"><h2>Sostituzioni</h2><label>Partita</label><select id="sbMatch" onchange="loadSubs()"></select><div id="subSlots"></div><button class="btn sec" onclick="addSubSlot()">＋ Aggiungi slot</button><button class="btn ok" onclick="saveSubs()">💾 Salva</button><div id="sbList" style="margin-top:10px"></div></div></div>
+  <div id="viewDoc" class="hidden">
+    <div class="card noPrint" style="display:flex;gap:6px"><button class="btn sec" id="docTabD" style="margin:0" onclick="showDoc('dist')">📑 Distinta</button><button class="btn sec" id="docTabC" style="margin:0" onclick="showDoc('conv')">📋 Convocazioni</button></div>
+    <div class="card noPrint"><label>Partita</label><select id="docMatch" onchange="renderDoc()"></select><button class="btn" onclick="window.print()">🖨 Stampa</button></div>
+    <div class="card" id="docOut"></div>
+  </div>
+  <div id="viewForm" class="hidden"><div class="card"><h2>Formazione</h2><label>Partita</label><select id="fmMatch" onchange="openForm()"></select><div id="fmRoster" style="margin-top:10px"></div><button class="btn ok" onclick="saveForm()">💾 Salva formazione</button></div></div>
+  <div id="viewFoto" class="hidden"><div class="card"><h2>Foto rosa</h2><div id="fotoGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px"></div></div></div>
+  <div id="viewSet" class="hidden">
+    <div class="card"><h2>Luoghi</h2><div class="row"><div><input type="text" id="setLuogo" placeholder="Nuovo luogo"></div><div><button class="btn sec" style="margin:0" onclick="addLuogo()">＋</button></div></div><div id="luoghiList" style="margin-top:8px"></div><label>Default</label><select id="setDefault"></select><button class="btn sec" onclick="saveLuoghi()">💾 Salva luoghi</button></div>
+    <div class="card"><h2>Società / avversari</h2><div class="row"><div><input type="text" id="setSoc" placeholder="Nome società"></div><div><input type="text" id="setSocCampo" placeholder="Campo"></div></div><button class="btn sec" onclick="addSoc()">＋ Aggiungi</button><div id="socList" style="margin-top:8px"></div><button class="btn sec" onclick="saveSoc()">💾 Salva società</button></div>
+  </div>
+  <div id="viewReg" class="hidden"><div class="kpi" id="regKpi"></div>
+    <div class="card"><h2>Presenze allenamento</h2><div id="regGrafPres"></div></div>
+    <div class="card"><h2>Marcatori</h2><div id="regGrafGol"></div></div>
+    <div class="card"><h2>Presenze partite</h2><div id="regGrafPart"></div></div>
+  </div>
+  <div id="viewRosa" class="hidden">
+    <div class="card"><h2>Aggiungi giocatore</h2><div class="fotoPrev" id="npFotoPrev">📷</div><input type="file" id="npFoto" accept="image/*" onchange="previewFoto('np','npFotoPrev')">
+      <div class="row"><div><label>Numero</label><input type="number" id="npNum"></div><div><label>Cognome</label><input type="text" id="npCogn"></div><div><label>Nome</label><input type="text" id="npNome"></div></div>
+      <div class="row"><div><label>Nascita</label><input type="date" id="npBirth"></div><div><label>Scad. visita</label><input type="date" id="npMed"></div></div>
+      <div class="row"><div><label>In rosa dal</label><input type="date" id="npJoined"></div><div><label>Uscito il</label><input type="date" id="npLeft"></div></div>
+      <div class="row"><div><label>Telefono</label><input type="tel" id="npTel"></div><div><label>Tel. madre</label><input type="tel" id="npTelM"></div><div><label>Tel. padre</label><input type="tel" id="npTelP"></div></div>
+      <details><summary>Altri dati</summary><div class="row"><div><label>FIGC</label><input type="text" id="npFigc"></div><div><label>Documento</label><input type="text" id="npDoc"></div></div><div class="row"><div><label>Tessera</label><input type="text" id="npCard"></div><div><label>Note</label><input type="text" id="npNote"></div></div></details>
+      <button class="btn" onclick="addPlayer()">＋ Aggiungi</button><div id="npMsg"></div></div>
+    <div class="card hidden" id="editCard"><h2>Modifica</h2><div class="fotoPrev" id="edFotoPrev">📷</div><input type="file" id="edFoto" accept="image/*" onchange="previewFoto('ed','edFotoPrev')">
+      <div class="row"><div><label>Numero</label><input type="number" id="edNum"></div><div><label>Cognome</label><input type="text" id="edCogn"></div><div><label>Nome</label><input type="text" id="edNome"></div></div>
+      <div class="row"><div><label>Nascita</label><input type="date" id="edBirth"></div><div><label>Scad. visita</label><input type="date" id="edMed"></div></div>
+      <div class="row"><div><label>In rosa dal</label><input type="date" id="edJoined"></div><div><label>Uscito il</label><input type="date" id="edLeft"></div></div>
+      <div class="row"><div><label>Telefono</label><input type="tel" id="edTel"></div><div><label>Tel. madre</label><input type="tel" id="edTelM"></div><div><label>Tel. padre</label><input type="tel" id="edTelP"></div></div>
+      <div class="row"><div><label>FIGC</label><input type="text" id="edFigc"></div><div><label>Documento</label><input type="text" id="edDoc"></div></div><div class="row"><div><label>Tessera</label><input type="text" id="edCard"></div><div><label>Note</label><input type="text" id="edNote"></div></div>
+      <button class="btn ok" onclick="saveEdit()">💾 Salva</button><button class="btn sec" onclick="closeEdit()">Annulla</button><div id="edMsg"></div></div>
+    <div class="card"><h2>Rosa (<span id="rosaCount">0</span>)</h2><div id="rosaList"><div class="spin">Caricamento…</div></div><div id="archWrap" class="hidden" style="margin-top:12px;border-top:1px solid #e2e8f0;padding-top:10px"><h3 style="font-size:13px;color:#64748b">Archiviati / usciti</h3><div id="archList"></div></div><a class="linkPiccolo" onclick="clearRosa()">🗑 Svuota rosa</a></div>
+  </div>
+</main>
+<script type="module" src="app.js"></script>
+</body>
+</html>
