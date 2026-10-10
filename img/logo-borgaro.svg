@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+<circle cx="100" cy="100" r="96" fill="#ffffff" stroke="#c8963e" stroke-width="6"/>
+<path d="M100 4 a96 96 0 0 1 0 192 z" fill="#14508c"/>
+<g>
+<path d="M52 52 l6 -10 6 8 6 -10 6 8 6 -10 6 8 6 -10 6 10 -4 8 h-44 z" fill="#c8963e"/>
+<ellipse cx="76" cy="63" rx="22" ry="6" fill="#c8963e"/>
+<path d="M56 72 h40 v32 q0 12 -20 18 q-20 -6 -20 -18 z" fill="#fff" stroke="#c8963e" stroke-width="3"/>
+<g fill="#d22630">
+<rect x="60" y="78" width="32" height="5"/><rect x="64" y="76" width="4" height="9"/><rect x="72" y="76" width="4" height="9"/><rect x="80" y="76" width="4" height="9"/><rect x="88" y="76" width="4" height="9"/>
+<rect x="60" y="92" width="32" height="5"/><rect x="64" y="90" width="4" height="9"/><rect x="72" y="90" width="4" height="9"/><rect x="80" y="90" width="4" height="9"/><rect x="88" y="90" width="4" height="9"/>
+<rect x="60" y="106" width="32" height="5"/><rect x="64" y="104" width="4" height="9"/><rect x="72" y="104" width="4" height="9"/><rect x="80" y="104" width="4" height="9"/><rect x="88" y="104" width="4" height="9"/>
+</g>
+<g fill="#111">
+<rect x="65" y="85" width="5" height="4"/><rect x="74" y="85" width="5" height="4"/><rect x="83" y="85" width="5" height="4"/>
+<rect x="65" y="99" width="5" height="4"/><rect x="74" y="99" width="5" height="4"/><rect x="83" y="99" width="5" height="4"/>
+</g>
+<path d="M52 122 q-16 -8 -18 -30" fill="none" stroke="#c8963e" stroke-width="3"/>
+<path d="M100 122 q16 -8 18 -30" fill="none" stroke="#2e7d32" stroke-width="3"/>
+<g fill="#2e7d32"><circle cx="112" cy="100" r="2.5"/><circle cx="115" cy="110" r="2.5"/><circle cx="110" cy="118" r="2.5"/></g>
+<path d="M64 130 q12 9 24 0" fill="none" stroke="#d22630" stroke-width="4"/>
+<path d="M70 132 q6 6 12 0" fill="none" stroke="#14508c" stroke-width="3"/>
+</g>
+<text x="148" y="84" fill="#fff" font-family="Arial,Helvetica" font-size="13" font-weight="700" text-anchor="middle" letter-spacing="1">A.S.D.</text>
+<text x="148" y="106" fill="#fff" font-family="Arial Black,Arial" font-size="21" font-weight="900" text-anchor="middle">BORGARO</text>
+<text x="148" y="122" fill="#fff" font-family="Arial,Helvetica" font-size="11" font-weight="700" text-anchor="middle">AUTOINGROS</text>
+</svg>
