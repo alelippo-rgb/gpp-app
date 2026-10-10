@@ -398,7 +398,18 @@ window.saveForm=async function(){if(!CUR_PART)return;const rows=PLAYERS.map(func
 // ---------- DOCUMENTI FEDELI ----------
 function minusMinuti(hm,min){if(!hm)return "";var p=String(hm).split(":");var tot=parseInt(p[0])*60+parseInt(p[1])-min;if(tot<0)tot+=1440;return String(Math.floor(tot/60)).padStart(2,"0")+":"+String(tot%60).padStart(2,"0");}
 function birthFmt(d){return d?d.split("-").reverse().join("/"):"";}
+// ---------- DOCUMENTI FEDELI (distinta max 20, tendine staff, duplicati, esclusi) ----------
+function minusMinuti(hm,min){if(!hm)return "";var p=String(hm).split(":");var tot=parseInt(p[0])*60+parseInt(p[1])-min;if(tot<0)tot+=1440;return String(Math.floor(tot/60)).padStart(2,"0")+":"+String(tot%60).padStart(2,"0");}
+function birthFmt(d){return d?d.split("-").reverse().join("/"):"";}
+let DOC_STAFF={};
 window.showDoc=function(m){DOC_MODE=m;var dd=$("docTabD"),dc=$("docTabC");if(dd)dd.className="btn "+(m==="dist"?"":"sec");if(dc)dc.className="btn "+(m==="conv"?"":"sec");renderDoc();};
+window.setDocStaff=function(role,id){DOC_STAFF[role]=id;buildDoc();};
+window.saveDistStaff=async function(){
+  if(!CUR_DOC_MATCH)return;
+  const rows=Object.keys(DOC_STAFF).filter(function(r){return DOC_STAFF[r];}).map(function(r){return{match_id:CUR_DOC_MATCH.id,role:r,staff_id:DOC_STAFF[r]};});
+  for(const r of rows){await sb.from("match_staff").upsert(r,{onConflict:"match_id,role"});}
+  alert("Staff distinta salvato per questa partita.");
+};
 window.convSet=function(id,field,val){if(!CONV_STATE[id])CONV_STATE[id]={conv:true,note:""};CONV_STATE[id][field]=(field==="conv")?(val==="1"):val;};
 window.saveConv=async function(){
   if(!CUR_DOC_MATCH)return;
@@ -412,6 +423,16 @@ window.renderDoc=function(){
   var m=PARTITE.find(function(x){return x.id===dm.value;});
   CUR_DOC_MATCH=m||null;
   if(!m){out.innerHTML='<div class="spin">Nessuna partita</div>';return;}
+  if(DOC_MODE==="dist"){
+    sb.from("match_staff").select("*").eq("match_id",m.id).then(function(rs){
+      DOC_STAFF={};
+      (rs.data||[]).forEach(function(x){DOC_STAFF[x.role]=x.staff_id;});
+      buildDoc();
+    });
+  }else{buildDoc();}
+};
+function buildDoc(){
+  var m=CUR_DOC_MATCH,out=$("docOut");if(!m||!out)return;
   var ritrovo=minusMinuti(m.time,75);
   var luogo=m.place||SETTINGS.luogo_default;
   var viaLuogo=getVia(luogo);
@@ -424,9 +445,16 @@ window.renderDoc=function(){
     var elenco=PLAYERS.filter(function(p){return inRosa(p,m.date);}).sort(function(a,b){return (a.jersey_number||99)-(b.jersey_number||99);});
     var h='';
     if(DOC_MODE==="dist"){
-      var conv=elenco.filter(function(p){var x=mpM[p.id];return !x||x.convocated;});
+      var convocati=elenco.filter(function(p){var x=mpM[p.id];return !x||x.convocated;});
+      var distinti=convocati.slice(0,20);
+      var eccedenti=convocati.slice(20);
+      var esclusi=elenco.filter(function(p){var x=mpM[p.id];return x&&!x.convocated;}).concat(eccedenti);
+      // duplicati giocatori
+      var cnt={};distinti.forEach(function(p){var k=(p.last_name+" "+p.first_name).toUpperCase();cnt[k]=(cnt[k]||0)+1;});
+      // duplicati staff
+      var scnt={};Object.keys(DOC_STAFF).forEach(function(rl){var id=DOC_STAFF[rl];if(id){scnt[id]=(scnt[id]||0)+1;}});
       h+='<div class="docWrap">';
-      h+='<div class="docTop"><div class="docLogos">🇮🇹<br>🛡️</div><div class="docSocName">A.S.D. BORGARO AUTOINGROS</div><div class="docLogos">🔵</div></div>';
+      h+='<div class="docTop"><div class="docLogos">🇮<br>️</div><div class="docSocName">A.S.D. BORGARO AUTOINGROS</div><div class="docLogos">🔵</div></div>';
       h+='<div class="docContacts">'+CLUB_INFO.addr+' – Tel. '+CLUB_INFO.tel+'<br>E-mail: '+CLUB_INFO.mail+' - PEC: '+CLUB_INFO.pec+'<br>'+CLUB_INFO.piva+' - MATRICOLA FIGC '+CLUB_INFO.matricola+' - ISCRIZIONE REGISTRO C.O.N.I. n° '+CLUB_INFO.coni+'</div>';
       h+='<div class="docBarGrey">DISTINTA GIOCATORI</div>';
       h+='<div class="docBarGrey small">INCONTRO di '+m.competition+'</div>';
@@ -434,12 +462,27 @@ window.renderDoc=function(){
       h+='<div class="docMetaRow"><span class="lbl">VALEVOLE PER:</span><span class="val">'+m.competition+' Regionale U14</span></div>';
       h+='<div class="docMetaRow"><span class="lbl">DATA:</span><span class="val">'+dataFmt+'</span><span class="lbl">ORARIO:</span><span class="val">'+(m.time?fmtTime(m.time):"")+'</span><span class="lbl">CAMPO:</span><span class="val">'+luogo+(viaLuogo?(" "+viaLuogo):"")+'</span></div>';
       h+='<table class="docGrid"><tr><th style="width:6%">N°</th><th>COGNOME e NOME</th><th style="width:10%">CAP ---- V.CAP</th><th style="width:14%">MATRICOLA</th><th style="width:14%">DATA DI NASCITA</th><th style="width:16%">TESSERA F.I.G.C. o DOCUMENTO</th></tr>';
-      conv.forEach(function(p,i){h+='<tr><td>'+(i+1)+'</td><td>'+p.last_name+' '+p.first_name+'</td><td></td><td>'+(p.figc_id||"")+'</td><td>'+birthFmt(p.birth_date)+'</td><td>'+(p.card_number||"")+'</td></tr>';});
+      distinti.forEach(function(p,i){
+        var k=(p.last_name+" "+p.first_name).toUpperCase();
+        var dup=cnt[k]>1;
+        h+='<tr'+(dup?' style="background:#fee2e2"':'')+'><td>'+(i+1)+'</td><td'+(dup?' style="background:#fee2e2;font-weight:800"':'')+'>'+p.last_name+' '+p.first_name+(dup?' ⚠':'')+'</td><td></td><td>'+(p.figc_id||"")+'</td><td>'+birthFmt(p.birth_date)+'</td><td>'+(p.card_number||"")+'</td></tr>';
+      });
+      for(var i=distinti.length;i<20;i++){h+='<tr><td>'+(i+1)+'</td><td></td><td></td><td></td><td></td><td></td></tr>';}
       h+='</table>';
-      h+='<table class="docGrid" style="border-top:none">';
-      RUOLI_STAFF.forEach(function(rl){var s=STAFF.find(function(x){return (x.role||"").toUpperCase()===rl;});
-        h+='<tr><td class="rl" style="width:36%">'+rl+'</td><td>'+(s?s.full_name:"")+'</td><td style="width:30%"><table style="width:100%;border:none;font-size:10px"><tr><td style="border:1px solid #000;background:#eee;font-weight:700">TESS. FIGC</td><td style="border:1px solid #000">'+(s?(s.figc_id||""):"")+'</td></tr><tr><td style="border:1px solid #000;background:#eee;font-weight:700">DOCUMENTO N.</td><td style="border:1px solid #000">'+(s?(s.doc_id||""):"")+'</td></tr></table></td></tr>';});
+      if(esclusi.length){
+        h+='<div class="docBarGrey small" style="background:#fef3c7">NON INSERITI IN DISTINTA ('+esclusi.length+') — verifica di averli considerati tutti</div>';
+        h+='<table class="docGrid" style="border-top:none"><tr><th>N°</th><th>COGNOME e NOME</th><th>MOTIVO</th></tr>';
+        esclusi.forEach(function(p){h+='<tr><td>'+(p.jersey_number||"")+'</td><td class="nome">'+p.last_name+' '+p.first_name+'</td><td>'+(eccedenti.indexOf(p)!==-1?"oltre i 20":"non convocato")+'</td></tr>';});
+        h+='</table>';
+      }
+      h+='<table class="docGrid">';
+      RUOLI_STAFF.forEach(function(rl){
+        var sel=DOC_STAFF[rl]||((STAFF.find(function(x){return (x.role||"").toUpperCase()===rl;})||{}).id)||"";
+        var dupS=sel&&scnt[sel]>1;
+        h+='<tr'+(dupS?' style="background:#fee2e2"':'')+'><td class="rl" style="width:36%">'+rl+'</td><td><select class="noPrint" style="width:100%" onchange="setDocStaff(\''+rl.replace(/'/g,"\\'")+'\',this.value)"><option value="">— scegli —</option>'+STAFF.map(function(s){return '<option value="'+s.id+'"'+(sel===s.id?" selected":"")+'>'+s.full_name+'</option>';}).join("")+'</select></td><td style="width:30%"><table style="width:100%;border:none;font-size:10px"><tr><td style="border:1px solid #000;background:#eee;font-weight:700">TESS. FIGC</td><td style="border:1px solid #000">'+staffField(sel,"figc_id")+'</td></tr><tr><td style="border:1px solid #000;background:#eee;font-weight:700">DOCUMENTO N.</td><td style="border:1px solid #000">'+staffField(sel,"doc_id")+'</td></tr></table></td></tr>';
+      });
       h+='</table>';
+      h+='<div class="docBtns noPrint"><button class="btn ok" onclick="saveDistStaff()">💾 Salva staff distinta</button></div>';
       h+='<div class="docNotes">Il sottoscritto Dirigente accompagnatore ufficiale dichiara che il presente elenco è redatto in ottemperanza a quanto stabilito dagli artt. 61 e 66 delle N.O.I.F.</div>';
       h+='<div class="docSignRow"><div>L\'ARBITRO<br><br><br></div><div>IL DIRIGENTE ACCOMPAGNATORE UFFICIALE<br><br><br></div></div>';
       h+='</div>';
@@ -456,7 +499,7 @@ window.renderDoc=function(){
       h+='<div class="docMetaRow"><span class="lbl">INDIRIZZO</span><span class="val">'+(m.home?(luogo+(viaLuogo?(" "+viaLuogo):"")):(viaAvv||luogo))+'</span></div>';
       h+='<table class="docGrid"><tr><th style="width:6%">N°</th><th>COGNOME</th><th>NOME</th><th style="width:16%">CONVOCATO SI/NO</th><th style="width:26%">MOTIVAZIONE E/O NOTE</th></tr>';
       elenco.forEach(function(p,i){var s=CONV_STATE[p.id];
-        h+='<tr><td>'+(i+1)+'</td><td>'+p.last_name+'</td><td>'+p.first_name+'</td>'+
+        h+='<tr><td>'+(p.jersey_number||"")+'</td><td>'+p.last_name+'</td><td>'+p.first_name+'</td>'+
         '<td><select onchange="convSet(\''+p.id+'\',\'conv\',this.value)"><option value="1"'+(s.conv?" selected":"")+'>SI</option><option value="0"'+(!s.conv?" selected":"")+'>NO</option></select></td>'+
         '<td><select onchange="convSet(\''+p.id+'\',\'note\',this.value)">'+MOTIVI_CONV.map(function(o){return '<option'+(s.note===o?" selected":"")+'>'+o+'</option>';}).join("")+'</select></td></tr>';});
       h+='</table>';
@@ -466,7 +509,8 @@ window.renderDoc=function(){
     }
     out.innerHTML=h;
   });
-};
+}
+function staffField(id,f){if(!id)return "";var s=STAFF.find(function(x){return x.id===id;});return s?(s[f]||""):"";};
 
 function renderFoto(){const fg=$("fotoGrid");if(!fg)return;fg.innerHTML=PLAYERS.map(function(p){const iz=((p.first_name||"")[0]||"")+((p.last_name||"")[0]||"");const bg=p.photo_url?("background-image:url('"+p.photo_url+"')"):"";return '<div style="text-align:center"><div style="width:100%;aspect-ratio:1;border-radius:14px;background:#e2e8f0 '+bg+';background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-weight:800;color:#94a3b8;overflow:hidden">'+(p.photo_url?"":iz.toUpperCase())+'</div><div style="font-size:10px;font-weight:700;margin-top:4px">'+p.last_name+'</div></div>';}).join("");}
 
