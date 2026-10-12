@@ -722,7 +722,6 @@ function isGk(p){const n=displayNum(p);return n===1||n===12||n===22;}
 window.openPlayerSheet=function(pid){
   if(!LIVE)return;
   const p=pById(pid);if(!p)return;
-  if(isExpelled(pid){}
   if(isExpelled(pid)){alert("Giocatore espulso: fuori gioco, non può essere sostituito né fare eventi.");return;}
   LIVE_SEL=pid;
   $("shLiveName").textContent="#"+(displayNum(p)||"-")+" "+p.last_name;
