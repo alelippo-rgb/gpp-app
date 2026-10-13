@@ -1201,4 +1201,3 @@ async function loadRegistro(){const rm=await sb.from("matches").select("*").eq("
 const ad=document.getElementById("attDate");if(ad)ad.value=isoOf(new Date());
 const pmd=document.getElementById("pmDate");if(pmd)pmd.value=isoOf(new Date());
 boot();
-if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(function(){});
