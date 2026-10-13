@@ -1,8 +1,14 @@
+// sw.js — DISATTIVAZIONE: svuota le cache e si auto-rimuove
 self.addEventListener("install", function(e){ self.skipWaiting(); });
 self.addEventListener("activate", function(e){
   e.waitUntil(
-    caches.keys().then(function(ks){ return Promise.all(ks.map(function(k){ return caches.delete(k); })); })
-          .then(function(){ return clients.claim(); })
+    caches.keys().then(function(keys){
+      return Promise.all(keys.map(function(k){ return caches.delete(k); }));
+    })
+    .then(function(){ return self.registration.unregister(); })
+    .then(function(){ return clients.claim(); })
   );
 });
-// Nessun fetch handler: da ora si passa SEMPRE dalla rete, niente più cache.
+self.addEventListener("fetch", function(e){
+  e.respondWith(fetch(e.request));
+});
