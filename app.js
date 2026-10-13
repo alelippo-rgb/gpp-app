@@ -13,7 +13,8 @@ const LOGO_AUTOINGROS=svgURI('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0
 const DEFAULT_CLUB={nome:"A.S.D. BORGARO AUTOINGROS",den:"A.S.D. Borgaro Autoingros",addr:"Via Santa Cristina 16 – 10071 – Borgaro Torinese (TO)",tel:"011 4703268",mail:"segreteria@fcborgaro1965.it",pec:"postmaster@pec.fcborgaro1965.it",piva:"P.IVA 039396940018",matricola:"78854",coni:"39272",logo:"",c1:"#1e3a8a",c2:"#c8102e",acc:"#facc15"};
 const RUOLI_STAFF=["DIRIGENTE ACCOMPAGNATORE UFFICIALE","ALLENATORE","ALLENATORE IN SECONDA","MEDICO SOCIALE","OPERATORE SANITARIO AUSILIARIO","ASSISTENTE DI LINEA DI SOCIETA'","DIRIGENTE ADDETTO AGLI UFF. DI GARA"];
 const MOTIVI_CONV=["","NON DISPONIBILE","INFORTUNATO","MALATO","VIAGGIO","SCUOLA","FAMIGLIA","PERMESSO","ALTRO"];
-const EV_LABEL={goal:"⚽ Gol",assist:"🎯 Assist",shot:"💥 Tiro",save:"🧤 Parata",goal_against:"🥅 Gol subito",yellow:"🟨 Ammonizione",red:"🟥 Espulsione",sub_out:"🔄 Esce / Sost."};
+const EV_LABEL={goal:"⚽ Gol",assist:"🎯 Assist",shot:"💥 Tiro",save:"🧤 Parata",goal_against:"🥅 Gol subito",yellow:"🟨 Ammonizione",red:"🟥 Espulsione",sub_out:"🔄 Esce / Sost.",sub_in:"🔄 Entra in campo"};
+const ACT_ICON={assist:"🎯",shot:"💥",save:"🧤",goal_against:"🥅"};
 const MAX_SUBS=7;
 const DOC_CSS=
 ".docWrap{width:100%;max-width:190mm;margin:0 auto;background:#fff;border:2px solid #000;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#000}"+
@@ -93,26 +94,33 @@ function injectLiveCss(){if(document.getElementById("liveCss"))return;const ci=c
 ".srcLbl{color:#e2e8f0;font-size:10px;font-weight:800;text-align:center;margin:6px 0 4px;background:rgba(2,6,23,.55);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:4px 6px}"+
 ".pitch2{min-height:0;padding:10px 6px;position:relative;border-radius:14px;overflow:hidden;border:2px solid rgba(255,255,255,.75);box-shadow:inset 0 0 40px rgba(0,0,0,.4);background:repeating-linear-gradient(180deg,#15803d 0 24px,#16a34a 24px 48px)}"+
 ".pitch2::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 50%,transparent 30px,rgba(255,255,255,.8) 30px,rgba(255,255,255,.8) 32px,transparent 32px),linear-gradient(rgba(255,255,255,.8),rgba(255,255,255,.8)) 0 50%/100% 2px no-repeat,linear-gradient(rgba(255,255,255,.8),rgba(255,255,255,.8)) 0 6%/100% 2px no-repeat,linear-gradient(rgba(255,255,255,.8),rgba(255,255,255,.8)) 0 94%/100% 2px no-repeat;opacity:.5}"+
-".stand{height:8px;background:linear-gradient(180deg,#475569,#1e293b);border-radius:6px;margin:0 0 10px;display:flex;align-items:center;justify-content:center;gap:3px;overflow:hidden}"+
+".stand{height:8px;background:linear-gradient(180deg,#475569,#1e293b);border-radius:6px;margin:0 0 6px;display:flex;align-items:center;justify-content:center;gap:3px;overflow:hidden}"+
 ".stand i{width:3px;height:3px;border-radius:50%;background:#cbd5e1;flex:0 0 auto}"+
-".pitchGrid{position:relative;z-index:1;display:flex;flex-direction:column;gap:12px;align-items:center;padding:2px 0}"+
-".lineRow{display:flex;gap:9px;justify-content:center;flex-wrap:wrap}"+
-".benchGrid{flex-direction:row;flex-wrap:wrap;gap:7px}"+
+".pitchArea{position:relative;height:330px;z-index:1}"+
+".benchGrid{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:4px 0}"+
 ".futcard{position:relative;width:84px;margin:0 auto;padding:13px 4px 12px;text-align:center;cursor:pointer;color:#3a2f00;user-select:none;background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.6),rgba(255,255,255,0) 62%),linear-gradient(165deg,#fff7cf 0%,#f3d34a 28%,#d4a017 55%,#8a6d1a 100%);clip-path:polygon(50% 0%,93% 6%,100% 28%,100% 74%,50% 100%,0% 74%,0% 28%,7% 6%);box-shadow:inset 0 0 0 2px rgba(255,255,255,.45),inset 0 -8px 14px rgba(0,0,0,.28)}"+
-".futcard::before{content:'';position:absolute;inset:0;background:linear-gradient(115deg,transparent 32%,rgba(255,255,255,.55) 46%,transparent 60%);pointer-events:none}"+
+".futcard::before{content:'';position:absolute;inset:0;background:linear-gradient(115deg,transparent 32%,rgba(255,255,255,.5) 46%,transparent 60%);pointer-events:none}"+
+".futcard.drag{position:absolute;transform:translate(-50%,-50%);margin:0;touch-action:none;cursor:grab}"+
+".futcard.mini{width:56px;padding:7px 2px 7px}"+
+".futcard.mini .num{font-size:14px}"+
+".futcard.mini .nm{font-size:7px}"+
 ".futcard .crest{position:absolute;top:7px;left:9px;width:15px;height:15px;object-fit:contain;opacity:.95}"+
-".futcard .num{display:block;font-size:22px;font-weight:900;line-height:1;text-shadow:0 1px 0 rgba(255,255,255,.7),0 2px 3px rgba(0,0,0,.3)}"+
+".futcard.mini .crest{width:10px;height:10px;top:4px;left:5px}"+
+".futcard .num{display:block;font-size:22px;font-weight:900;line-height:1;text-shadow:0 1px 0 rgba(255,255,255,.55),0 2px 3px rgba(0,0,0,.35)}"+
 ".futcard .nm{display:block;font-size:9px;font-weight:800;text-transform:uppercase;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.3px}"+
 ".futcard .st{display:block;font-size:8px;font-weight:800;margin-top:2px}"+
 ".futcard .gols,.futcard .yell{position:absolute;top:7px;font-size:9px;font-weight:900;border-radius:999px;padding:1px 5px;line-height:1.2;box-shadow:0 2px 5px rgba(0,0,0,.4)}"+
 ".futcard .gols{right:7px;background:#c8102e;color:#fff}"+
 ".futcard .yell{left:26px;background:#facc15;color:#713f12}"+
-".futcard.gk{background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.55),rgba(255,255,255,0) 62%),linear-gradient(165deg,#d9f7e0 0%,#34c06a 35%,#0c7a3d 75%,#075c2e 100%);color:#04301a}"+
+".futcard .acts{position:absolute;bottom:5px;right:5px;font-size:8px;line-height:1;display:flex;gap:1px;align-items:center;color:#fff;text-shadow:0 1px 2px #000}"+
+".futcard.c-blu{background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.5),rgba(255,255,255,0) 60%),linear-gradient(165deg,#dbeafe 0%,#60a5fa 30%,#2563eb 60%,#1e3a8a 100%);color:#fff}"+
+".futcard.c-grigio{background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.5),rgba(255,255,255,0) 60%),linear-gradient(165deg,#f3f4f6 0%,#9ca3af 35%,#4b5563 75%,#374151 100%);color:#fff}"+
+".futcard.c-giallo{background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.55),rgba(255,255,255,0) 62%),linear-gradient(165deg,#fef9c3 0%,#facc15 35%,#ca8a04 75%,#854d0e 100%);color:#3a2f00}"+
+".futcard.c-rosso{background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.45),rgba(255,255,255,0) 60%),linear-gradient(165deg,#fee2e2 0%,#ef4444 35%,#b91c1c 75%,#7f1d1d 100%);color:#fff}"+
 ".futcard.on{background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.55),rgba(255,255,255,0) 62%),linear-gradient(165deg,#d9f7e0 0%,#34c06a 35%,#0c7a3d 75%,#075c2e 100%);color:#04301a}"+
 ".futcard.off{background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.5),rgba(255,255,255,0) 62%),linear-gradient(165deg,#ffe1e1 0%,#e57373 35%,#b02a2a 75%,#8c1d1d 100%);color:#fff}"+
-".futcard.pan{background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.5),rgba(255,255,255,0) 62%),linear-gradient(165deg,#f5f5f5 0%,#c0c0c0 35%,#8a8a8a 75%,#6e6e6e 100%);color:#222}"+
 ".futcard.out{opacity:.5}"+
-".futcard.exp{background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.4),rgba(255,255,255,0) 62%),linear-gradient(165deg,#ffd7d7 0%,#e05252 35%,#a01212 75%,#7c0d0d 100%);color:#3a0505;opacity:.85}"+
+".futcard.exp{opacity:.4;filter:grayscale(.6)}"+
 ".pcwrap{width:100%;max-width:110px;margin:0 auto}"+
 ".pcctrl{display:flex;gap:6px;justify-content:center;align-items:center;margin-top:6px;flex-wrap:wrap}"+
 ".pbtn{width:36px;height:36px;border-radius:10px;border:1px solid #cbd5e1;background:#fff;font-size:17px;cursor:pointer}"+
@@ -131,8 +139,17 @@ function removeFotoCard(){const cards=document.querySelectorAll(".hcard");cards.
 function wrapSheetPres(){const sp=$("sheetPres");if(!sp)return;if(sp.querySelector(".sheetIn2"))return;const w=document.createElement("div");w.className="sheetIn2";while(sp.firstChild)w.appendChild(sp.firstChild);sp.appendChild(w);}
 function addLiveBarBtns(){
   const lb=document.querySelector(".liveBar");if(!lb)return;
+  const db=lb.querySelector('[onclick="openMatchOptions()"]');if(db)db.remove();
   if(!lb.querySelector("#btnRosa")){const b=document.createElement("button");b.id="btnRosa";b.textContent="👥 Rosa";b.onclick=function(){openSquadChoiceSheet();};lb.insertBefore(b,lb.firstChild);}
-  if(!lb.querySelector("#btnShare")){const s=document.createElement("button");s.id="btnShare";s.textContent="📤 Msg";s.onclick=function(){shareMatchSummary();};lb.insertBefore(s,lb.querySelector('[onclick="openMatchOptions()"]')||lb.children[2]);}
+  if(!lb.querySelector("#btnShare")){const s=document.createElement("button");s.id="btnShare";s.textContent="📤 Msg";s.onclick=function(){shareMatchSummary();};lb.insertBefore(s,lb.children[2]||null);}
+  const row=document.querySelector(".liveTop > div");
+  if(row&&!row.querySelector("#topEsci")){
+    const x=document.createElement("button");
+    x.id="topEsci";x.textContent="✕";x.title="Esci (pausa)";
+    x.style.cssText="width:34px;height:34px;border:none;border-radius:9px;background:#475569;color:#fff;font-size:15px;font-weight:900;cursor:pointer";
+    x.onclick=function(){exitLiveNoClose();};
+    row.appendChild(x);
+  }
 }
 
 window.doLogin=async function(){const r=await sb.auth.signInWithPassword({email:$("logEmail").value.trim(),password:$("logPass").value});if(r.error){msg("logMsg","Errore: "+r.error.message,false);return;}boot();};
@@ -466,7 +483,7 @@ window.confirmStartLive=async function(){
   }
   const ins={club_id:CLUB_ID,date:isoOf(new Date()),time:null,opponent:opp,home:$("lvHome").value==="true",competition:"Campionato",place:$("lvPlace").value||SETTINGS.luogo_default,category:"Under 14",status:"live"};
   const r=await sb.from("matches").insert(ins).select().single();if(r.error){alert(r.error.message);return;}
-  LIVE={matchId:r.data.id,clock:0,half:1,phase:"idle",halfDurations:halfDurations,runStart:null,accumulated:0,home:0,away:0,rec1:0,rec2:0,source:src,manual:manual,manualNum:manualNum,whistleHalf:0,distOrder:null};
+  LIVE={matchId:r.data.id,clock:0,half:1,phase:"idle",halfDurations:halfDurations,runStart:null,accumulated:0,home:0,away:0,rec1:0,rec2:0,source:src,manual:manual,manualNum:manualNum,whistleHalf:0,distOrder:null,positions:{}};
   REAL_SEC=0;SETTINGS.live=LIVE;await persistSettings();
   await loadPartite();closeLiveSheet();openLiveFor(r.data.id);CAL_ALL=null;
 };
@@ -489,6 +506,14 @@ async function refreshLiveEv(){
 function golCountFor(pid){return LIVE_EV.filter(function(e){return e.type==="goal"&&e.player_id===pid;}).length;}
 function yellowCountFor(pid){return LIVE_EV.filter(function(e){return e.type==="yellow"&&e.player_id===pid;}).length;}
 function isExpelled(pid){return LIVE_EV.some(function(e){return e.player_id===pid&&(e.type==="red"||(e.type==="yellow"&&e.detail==="2"));});}
+function actsFor(pid){
+  let s="";
+  for(const k in ACT_ICON){
+    const n=LIVE_EV.filter(function(e){return e.player_id===pid&&e.type===k;}).length;
+    if(n)s+=ACT_ICON[k]+(n>1?n:"");
+  }
+  return s;
+}
 function displayNum(p){
   if(LIVE){
     if(LIVE.source==="manual"&&LIVE.manualNum&&LIVE.manualNum[p.id]!=null&&LIVE.manualNum[p.id]!=="")return parseInt(LIVE.manualNum[p.id]);
@@ -516,9 +541,9 @@ function baseList(){
 }
 function srcLabel(){
   if(!LIVE)return "";
-  if(LIVE.source==="manual")return "✍️ Formazione scelta da te (numeri assegnati)";
-  if(LIVE.distOrder&&LIVE.distOrder.length)return "📋 Formazione e numeri dall'ULTIMA DISTINTA SALVATA (righe 1-20)";
-  return "🔢 Nessuna distinta caricata: uso i numeri di maglia (premi 👥 Rosa per sceglierne una)";
+  if(LIVE.source==="manual")return "✍️ Formazione scelta da te · trascina le card per spostarle";
+  if(LIVE.distOrder&&LIVE.distOrder.length)return "📋 Formazione dall'ultima distinta salvata · trascina le card per spostarle";
+  return "🔢 Nessuna distinta caricata: premi 👥 Rosa e scegli quale usare";
 }
 function liveClockSec(){
   if(!LIVE)return 0;
@@ -528,26 +553,28 @@ function liveClockSec(){
 function openLiveFor(id){
   const m=PARTITE.find(function(x){return x.id===id;});if(!m)return;
   if(!LIVE||LIVE.matchId!==id){
-    LIVE={matchId:id,clock:0,half:1,phase:"idle",halfDurations:[35*60,35*60],runStart:null,accumulated:0,home:(m.score_home||0),away:(m.score_away||0),rec1:0,rec2:0,source:"distinta",manual:[],manualNum:{},whistleHalf:0,distOrder:null};
+    LIVE={matchId:id,clock:0,half:1,phase:"idle",halfDurations:[35*60,35*60],runStart:null,accumulated:0,home:(m.score_home||0),away:(m.score_away||0),rec1:0,rec2:0,source:"distinta",manual:[],manualNum:{},whistleHalf:0,distOrder:null,positions:{}};
     REAL_SEC=0;SETTINGS.live=LIVE;persistSettings();
   }
   if(!LIVE.source)LIVE.source="distinta";
   if(LIVE.whistleHalf==null)LIVE.whistleHalf=0;
+  if(!LIVE.positions)LIVE.positions={};
   CUR_PART=m;
   Promise.all([loadLiveMp(id),refreshLiveEv(),loadDistOrder(id)]).then(function(){
     $("partHub").classList.add("hidden");$("partManual").classList.add("hidden");$("partLive").classList.remove("hidden");
     updateScoreLine();updateLiveUI();renderPitch();renderLiveEvents();updateLiveButtons();
     if(LIVE_UI_TIMER){clearInterval(LIVE_UI_TIMER);}
     LIVE_UI_TIMER=setInterval(function(){updateLiveUI();},1000);
+    if(LIVE.source==="distinta"&&!(LIVE.distOrder&&LIVE.distOrder.length)){openSquadChoiceSheet();}
   });
 }
 window.openSquadChoiceSheet=function(){
   if(!LIVE)return;
-  $("shLiveName").textContent="👥 Formazione in campo";
+  $("shLiveName").textContent="👥 Da dove prendo la formazione?";
   const sbd=$("sheetLiveBody");if(!sbd)return;
-  sbd.innerHTML='<p style="font-size:13px;color:#475569">Da dove prendo giocatori e numeri?</p>'+
-    '<label>Distinta salvata da usare</label><select id="distPick"><option value="">caricamento…</option></select>'+
-    '<button class="btn" onclick="setSquadDistinta()">📋 Carica dalla distinta</button>'+
+  sbd.innerHTML='<p style="font-size:13px;color:#475569">Scegli una distinta salvata oppure componi la formazione a mano.</p>'+
+    '<label>Distinte salvate</label><select id="distPick"><option value="">caricamento…</option></select>'+
+    '<button class="btn" onclick="setSquadDistinta()">📋 Usa questa distinta</button>'+
     '<button class="btn sec" onclick="openManualSquadSheet()">✍️ Li scelgo io (con numeri miei)</button>';
   $("sheetLive").classList.remove("hidden");
   populateDistPick();
@@ -570,6 +597,7 @@ window.setSquadDistinta=async function(){
   if(!r.data||!r.data.data||!r.data.data.rows||!r.data.data.rows.length){alert("Distinta vuota.");return;}
   LIVE.source="distinta";
   LIVE.distOrder=r.data.data.rows.filter(function(x){return x;});
+  LIVE.positions={};
   SETTINGS.live=LIVE;await persistSettings();
   closeLiveSheet();renderPitch();
 };
@@ -578,7 +606,7 @@ window.openManualSquadSheet=function(){
   $("shLiveName").textContent="✍️ Scegli giocatori e numeri";
   const sbd=$("sheetLiveBody");if(!sbd)return;
   const cur=LIVE.manual&&LIVE.manual.length?LIVE.manual:PLAYERS.map(function(p){return p.id;});
-  sbd.innerHTML='<p style="font-size:11px;color:#64748b">Spunta chi portare e assegna il numero. I primi 11 (in ordine di numero) vanno in campo dalla porta in giù.</p><div style="max-height:220px;overflow:auto;border:1px solid #e2e8f0;border-radius:10px;padding:6px">'+PLAYERS.map(function(p){
+  sbd.innerHTML='<p style="font-size:11px;color:#64748b">Spunta chi portare e assegna il numero. I primi 11 (in ordine di numero) vanno in campo; potrai trascinarli dove vuoi.</p><div style="max-height:220px;overflow:auto;border:1px solid #e2e8f0;border-radius:10px;padding:6px">'+PLAYERS.map(function(p){
     const chk=cur.indexOf(p.id)!==-1;
     const num=(LIVE.manualNum&&LIVE.manualNum[p.id]!=null&&LIVE.manualNum[p.id]!=="")?LIVE.manualNum[p.id]:(p.jersey_number||"");
     return '<label class="chkRow"><input type="checkbox" class="manChk2" value="'+p.id+'"'+(chk?" checked":"")+'><input type="number" class="manNum2" data-id="'+p.id+'" value="'+num+'" min="1" max="99" style="width:54px;padding:3px;font-size:12px"> '+p.last_name+'</label>';
@@ -591,7 +619,8 @@ window.confirmManualSquad=async function(){
   document.querySelectorAll(".manChk2").forEach(function(c){if(c.checked)ids.push(c.value);});
   document.querySelectorAll(".manNum2").forEach(function(n){nums[n.dataset.id]=n.value;});
   if(!ids.length){alert("Seleziona almeno un giocatore");return;}
-  LIVE.source="manual";LIVE.manual=ids;LIVE.manualNum=nums;SETTINGS.live=LIVE;await persistSettings();
+  LIVE.source="manual";LIVE.manual=ids;LIVE.manualNum=nums;LIVE.positions={};
+  SETTINGS.live=LIVE;await persistSettings();
   closeLiveSheet();renderPitch();
 };
 function updateScoreLine(){
@@ -662,6 +691,36 @@ function updateLiveUI(){
     playWhistle();vibrateNow();
   }
 }
+function attachDrag(el,pid){
+  let sx=null,sy=null,ox=0,oy=0,moved=false;
+  el.addEventListener("pointerdown",function(e){
+    sx=e.clientX;sy=e.clientY;moved=false;
+    const pr=el.offsetParent.getBoundingClientRect();
+    const r=el.getBoundingClientRect();
+    ox=(r.left+r.width/2-pr.left)/pr.width*100;
+    oy=(r.top+r.height/2-pr.top)/pr.height*100;
+    el.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  el.addEventListener("pointermove",function(e){
+    if(sx==null)return;
+    const dx=e.clientX-sx,dy=e.clientY-sy;
+    if(!moved&&Math.abs(dx)+Math.abs(dy)<8)return;
+    moved=true;
+    const pr=el.offsetParent.getBoundingClientRect();
+    let nx=ox+dx/pr.width*100, ny=oy+dy/pr.height*100;
+    nx=Math.max(5,Math.min(95,nx)); ny=Math.max(4,Math.min(96,ny));
+    el.style.left=nx+"%"; el.style.top=ny+"%";
+    if(!LIVE.positions)LIVE.positions={};
+    LIVE.positions[pid]={x:nx,y:ny};
+  });
+  el.addEventListener("pointerup",function(e){
+    if(moved){persistSettings();}
+    else{openPlayerSheet(pid);}
+    sx=sy=null;
+  });
+  el.addEventListener("pointercancel",function(){sx=sy=null;});
+}
 function renderPitch(){
   const lp=$("lvPitch"),lb=$("lvBench");if(!lp)return;
   lp.className="pitch2";
@@ -677,32 +736,55 @@ function renderPitch(){
   const inIds=inCampo.map(function(p){return p.id;});
   const panchina=base.filter(function(p){return inIds.indexOf(p.id)===-1&&!isExpelled(p.id);});
   const espulsi=base.filter(function(p){return isExpelled(p.id);});
-  const card=function(p,cls){
+  // posizioni default a righe (porta in alto)
+  const rowsDef=[];
+  if(inCampo.length){
+    rowsDef.push([inCampo[0]]);
+    for(let i=1;i<inCampo.length;i+=4){rowsDef.push(inCampo.slice(i,i+4));}
+  }
+  const defPos={};
+  rowsDef.forEach(function(rw,r){
+    rw.forEach(function(p,c){
+      defPos[p.id]={x:50+(c-(rw.length-1)/2)*17, y:(r===0?8:20+(r-1)*24)};
+    });
+  });
+  const cardHtml=function(p,cls,drag,pos){
     const g=golCountFor(p.id);
     const y=yellowCountFor(p.id);
-    return '<div class="futcard '+(isGk(p)?"gk ":"")+cls+'" onclick="openPlayerSheet(\''+p.id+'\')">'+
+    const acts=actsFor(p.id);
+    const style=drag?('style="left:'+pos.x+'%;top:'+pos.y+'%"'):"";
+    return '<div class="futcard '+cls+(drag?" drag":"")+'" data-pid="'+p.id+'" '+style+' '+(drag?"":'onclick="openPlayerSheet(\''+p.id+'\')"')+'>'+
       '<img class="crest" src="'+clubLogo()+'" alt="">'+
       (g>0?'<span class="gols">'+g+'</span>':'')+(y>0?'<span class="yell">'+y+'</span>':'')+
-      '<span class="num">'+(displayNum(p)||"-")+'</span><span class="nm">'+p.last_name+'</span></div>';
+      '<span class="num">'+(displayNum(p)||"-")+'</span><span class="nm">'+p.last_name+'</span>'+
+      (acts?'<span class="acts">'+acts+'</span>':'')+'</div>';
   };
-  const rows=[];
-  if(inCampo.length){
-    rows.push([inCampo[0]]);
-    for(let i=1;i<inCampo.length;i+=4){rows.push(inCampo.slice(i,i+4));}
-  }
+  let area='<div class="pitchArea">';
+  inCampo.forEach(function(p){
+    const pos=(LIVE.positions&&LIVE.positions[p.id])||defPos[p.id]||{x:50,y:50};
+    const cls=(isGk(p)?"c-grigio":"c-blu");
+    area+=cardHtml(p,cls,true,pos);
+  });
+  area+='</div>';
   let stand='<div class="stand">';for(let i=0;i<26;i++)stand+='<i></i>';stand+='</div>';
-  lp.innerHTML=stand+'<div class="pitchGrid">'+rows.map(function(rw){return '<div class="lineRow">'+rw.map(function(p){return card(p,"in");}).join("")+'</div>';}).join("")+'</div>';
-  if(lb)lb.innerHTML=(panchina.length?'<div class="pitchGrid benchGrid">'+panchina.map(function(p){return card(p,subOutIds.indexOf(p.id)!==-1?"out":"pan");}).join("")+'</div>':'<div style="color:#94a3b8;font-size:11px;text-align:center;padding:6px">Nessuno in panchina</div>')+
-    (espulsi.length?'<div style="color:#fca5a5;font-size:11px;font-weight:800;margin-top:8px;text-align:center">ESPULSI: '+espulsi.map(function(p){return "#"+(displayNum(p)||"-")+" "+p.last_name;}).join(", ")+' (fuori gioco, non sostituibili)</div>':'');
+  lp.innerHTML=stand+area;
+  lp.querySelectorAll(".futcard.drag").forEach(function(el){attachDrag(el,el.dataset.pid);});
+  if(lb)lb.innerHTML=(panchina.length?'<div class="benchGrid">'+panchina.map(function(p){return cardHtml(p,(isGk(p)?"c-rosso":"c-giallo")+(subOutIds.indexOf(p.id)!==-1?" out":""),false,null);}).join("")+'</div>':'<div style="color:#94a3b8;font-size:11px;text-align:center;padding:6px">Nessuno in panchina</div>')+
+    (espulsi.length?'<div style="color:#fca5a5;font-size:11px;font-weight:800;margin-top:8px;text-align:center">ESPULSI: '+espulsi.map(function(p){return "#"+(displayNum(p)||"-")+" "+p.last_name;}).join(", ")+' (fuori gioco)</div>':'');
 }
-function isGk(p){return displayNum(p)===1;}
+function isGk(p){const n=displayNum(p);return n===1||n===12;}
 window.openPlayerSheet=function(pid){
   if(!LIVE)return;
   const p=pById(pid);if(!p)return;
   if(isExpelled(pid)){alert("Giocatore espulso: fuori gioco, non può essere sostituito né fare eventi.");return;}
   LIVE_SEL=pid;
-  $("shLiveName").textContent="#"+(displayNum(p)||"-")+" "+p.last_name;
-  const opts=isGk(p)?["save","goal_against","goal","assist","yellow","red","sub_out"]:["goal","assist","shot","yellow","red","sub_out"];
+  const inCampo=onFieldIds().indexOf(pid)!==-1;
+  $("shLiveName").textContent="#"+(displayNum(p)||"-")+" "+p.last_name+(inCampo?" (in campo)":" (panchina)");
+  let opts=[];
+  if(!inCampo)opts.push("sub_in");
+  if(isGk(p)){opts=opts.concat(["save","goal_against","goal","assist","yellow","red"]);}
+  else{opts=opts.concat(["goal","assist","shot","yellow","red"]);}
+  if(inCampo)opts.push("sub_out");
   const sbd=$("sheetLiveBody");if(!sbd)return;
   sbd.innerHTML='<div class="evGrid">'+opts.map(function(t){return '<button onclick="eventPick(\''+pid+'\',\''+t+'\')">'+EV_LABEL[t]+'</button>';}).join("")+'</div>';
   $("sheetLive").classList.remove("hidden");
@@ -719,16 +801,17 @@ window.eventPick=function(pid,t){
     return;
   }
   if(t==="assist"){
-    const mates=baseList().filter(function(p){return p.id!==pid;});
-    $("shLiveName").textContent="🎯 Assist a chi?";
-    $("sheetLiveBody").innerHTML='<label>Compagno che ha segnato</label><select id="assistTo">'+mates.map(function(p){return '<option value="'+p.id+'">#'+(displayNum(p)||"-")+' '+p.last_name+'</option>';}).join("")+'</select><button class="btn ok" onclick="liveEventFor(\''+pid+'\',\'assist\',null,document.getElementById(\'assistTo\').value)">✅ Conferma assist</button>';
+    const mates=onFieldIds().filter(function(id){return id!==pid;}).map(function(id){return pById(id);}).filter(Boolean);
+    $("shLiveName").textContent="🎯 Assist a chi? (solo in campo)";
+    $("sheetLiveBody").innerHTML='<label>Compagno in campo che ha segnato</label><select id="assistTo">'+mates.map(function(p){return '<option value="'+p.id+'">#'+(displayNum(p)||"-")+' '+p.last_name+'</option>';}).join("")+'</select><button class="btn ok" onclick="liveEventFor(\''+pid+'\',\'assist\',null,document.getElementById(\'assistTo\').value)">✅ Conferma assist</button>';
     return;
   }
+  if(t==="sub_in"){closeLiveSheet();openSubSheet();setTimeout(function(){const si=$("shIn");if(si)si.value=pid;},60);return;}
+  if(t==="sub_out"){closeLiveSheet();openSubSheet();setTimeout(function(){const so=$("shOut");if(so)so.value=pid;},60);return;}
   liveEventFor(pid,t);
 };
 window.liveEventFor=async function(pid,t,detail,secondId){
   if(!LIVE)return;
-  if(t==="sub_out"){closeLiveSheet();openSubSheet();return;}
   const min=Math.floor(liveClockSec()/60);
   await sb.from("match_events").insert({match_id:LIVE.matchId,player_id:pid,type:t,minute:min,half:LIVE.half,detail:detail||null,second_player_id:secondId||null});
   if(t==="goal")LIVE.home=(LIVE.home||0)+1;
@@ -789,7 +872,7 @@ function matchSummaryText(){
       else t+="• "+(e.minute||0)+"' "+(e.half===1?"PT":"ST")+" 🟨"+(e.detail==="2"?"🟨":"")+" "+cognomeOf(e.player_id)+(e.detail==="2"?" (espulso)":"")+"\n";
     });
   }
-  const altri=LIVE_EV.filter(function(e){return e.type==="shot"||e.type==="save";});
+  const altri=LIVE_EV.filter(function(e){return e.type==="shot"||e.type==="save"||e.type==="assist";});
   if(altri.length){
     t+="\n📌 *ALTRI EVENTI*\n";
     altri.forEach(function(e){t+="• "+(e.minute||0)+"' "+(e.half===1?"PT":"ST")+" "+evLabel(e)+"\n";});
@@ -872,30 +955,6 @@ function renderLiveEvents(){
     const ep=$("evListPanel");if(ep)ep.innerHTML=head+evListHtml();
   }
 }
-window.openMatchOptions=async function(){
-  if(!LIVE)return;
-  const m=PARTITE.find(function(x){return x.id===LIVE.matchId;});if(!m)return;
-  $("shLiveName").textContent="⚙ Dati partita";
-  const sbd=$("sheetLiveBody");if(!sbd)return;
-  sbd.innerHTML='<label>Avversario</label><input id="lvMOpp" value="'+m.opponent+'">'+
-    '<div class="row"><div><label>Campo</label><select id="lvMHome"><option value="true"'+(m.home?" selected":"")+'>Casa</option><option value="false"'+(!m.home?" selected":"")+'>Trasferta</option></select></div><div><label>Orario</label><input type="time" id="lvMTime" value="'+(m.time||"")+'"></div></div>'+
-    '<div class="row"><div><label>Luogo</label><select id="lvMPlace">'+(SETTINGS.luoghi||[]).map(function(x){return '<option'+(x===m.place?" selected":"")+'>'+x+'</option>';}).join("")+'</select></div><div><label>Competizione</label><select id="lvMComp"><option'+(m.competition==="Campionato"?" selected":"")+'>Campionato</option><option'+(m.competition==="Coppa"?" selected":"")+'>Coppa</option><option'+(m.competition==="Amichevole"?" selected":"")+'>Amichevole</option><option'+(m.competition==="Torneo"?" selected":"")+'>Torneo</option></select></div></div>'+
-    '<label>Recupero 1°T (min)</label><input type="number" id="lvRec1" value="'+(LIVE.rec1||0)+'">'+
-    '<label>Recupero 2°T (min)</label><input type="number" id="lvRec2" value="'+(LIVE.rec2||0)+'">'+
-    '<button class="btn ok" onclick="saveMatchOptions()">💾 Salva dati</button>';
-  $("sheetLive").classList.remove("hidden");
-};
-window.saveMatchOptions=async function(){
-  if(!LIVE)return;
-  LIVE.rec1=parseInt($("lvRec1").value)||0;
-  LIVE.rec2=parseInt($("lvRec2").value)||0;
-  SETTINGS.live=LIVE;await persistSettings();
-  await sb.from("matches").update({opponent:$("lvMOpp").value.trim()||"?",home:$("lvMHome").value==="true",time:$("lvMTime").value||null,place:$("lvMPlace").value,competition:$("lvMComp").value}).eq("id",LIVE.matchId);
-  await loadPartite();
-  CUR_PART=PARTITE.find(function(x){return x.id===LIVE.matchId;});
-  updateScoreLine();closeLiveSheet();
-  alert("Dati partita aggiornati.");
-};
 window.closeLiveSheet=function(){const sl=$("sheetLive");if(sl)sl.classList.add("hidden");};
 function onFieldIds(){
   const base=baseList();
@@ -1064,7 +1123,7 @@ window.docSyncTime=function(which){
   if(which==="start"&&tIn.value){tRit.value=minusMinuti(tIn.value,75);}
   if(which==="rit"&&tRit.value){tIn.value=plusMinuti(tRit.value,75);}
 };
-window.saveDocEdit=async function(){
+async function updateMatchMeta(){
   if(!CUR_DOC_MATCH)return;
   let opp=$("docOppFree").value.trim();if(!opp)opp=$("docOpp").value;
   await sb.from("matches").update({
@@ -1078,12 +1137,10 @@ window.saveDocEdit=async function(){
   }).eq("id",CUR_DOC_MATCH.id);
   await loadPartite();
   CUR_DOC_MATCH=PARTITE.find(function(x){return x.id===CUR_DOC_MATCH.id;})||CUR_DOC_MATCH;
-  populateMatchSelect("docMatch");$("docMatch").value=CUR_DOC_MATCH.id;
-  renderDoc();
-  alert("Dati documento salvati sulla partita.");
-};
+}
 window.saveDist=async function(){
   if(!CUR_DOC_MATCH)return;
+  await updateMatchMeta();
   const r=await sb.from("match_players").select("*").eq("match_id",CUR_DOC_MATCH.id);
   const mpM={};(r.data||[]).forEach(function(x){mpM[x.player_id]=x;});
   const elenco=PLAYERS.filter(function(p){return inRosa(p,CUR_DOC_MATCH.date);});
@@ -1105,16 +1162,19 @@ window.saveDist=async function(){
     SETTINGS.live=LIVE;persistSettings();
     renderPitch();
   }
-  alert("Distinta salvata! Ordine e numeri di riga restano come li hai messi.");
+  alert("✅ DISTINTA SALVATA COMPLETA:\ndati intestazione + giocatori (ordine e numeri) + staff.\nIl Live e le riaperture useranno questi dati.");
+  populateMatchSelect("docMatch");$("docMatch").value=CUR_DOC_MATCH.id;
   renderDoc();
 };
 window.saveConv=async function(){
   if(!CUR_DOC_MATCH)return;
-  const rows=Object.keys(CONV_STATE).map(function(pid){return{match_id:CUR_DOC_MATCH.id,player_id:pid,convocated:CONV_STATE[pid].conv,conv_note:CONV_STATE[pid].note||null,starter:PART_STATE[pid]?PART_STATE[pid].starter:false};});
-  if(rows.length){const r=await sb.from("match_players").upsert(rows,{onConflict:"match_id,player_id"});if(r.error){alert(r.error.message);return;}}
+  await updateMatchMeta();
+  const rows=Object.keys(CONV_STATE).map(function(pid){return{match_id:CUR_DOC_MATCH.id,player_id:pid,convocated:CONV_STATE[pid].conv,conv_note:CONV_STATE[pid].note||null};});
+  if(rows.length){const r=await sb.from("match_players").upsert(rows,{onConflict:"match_id,player_id"});if(r.error){alert("Errore salvataggio convocazione: "+r.error.message);return;}}
   await sb.from("doc_history").insert({club_id:CLUB_ID,match_id:CUR_DOC_MATCH.id,doc_type:"conv",data:{state:CONV_STATE}});
   CONV_OVERRIDE=true;
-  alert("Convocazione salvata! La ritroverai aprendo questa partita e nello storico.");
+  alert("✅ CONVOCAZIONE SALVATA COMPLETA:\ndati intestazione + SI/NO e motivazioni.");
+  populateMatchSelect("docMatch");$("docMatch").value=CUR_DOC_MATCH.id;
   renderDoc();
 };
 window.loadDocHistory=async function(){
@@ -1132,7 +1192,7 @@ window.loadDocHistory=async function(){
     CONV_OVERRIDE=true;
     buildDoc();
   }
-  alert("Versione storica caricata. Premi Salva per renderla quella corrente.");
+  alert("Versione storica caricata nel foglio. Premi SALVA per renderla quella corrente.");
 };
 function populateDocHistory(m){
   const sel=$("docHistSel");if(!sel)return;
@@ -1147,6 +1207,7 @@ window.renderDoc=function(){
   CUR_DOC_MATCH=m||null;
   CONV_OVERRIDE=false;
   if(!m){out.innerHTML='<div class="spin">Nessuna partita</div>';return;}
+  var dsb=$("docSaveBtn");if(dsb)dsb.classList.add("hidden");
   if(DOC_MODE==="dist"){
     sb.from("match_staff").select("*").eq("match_id",m.id).then(function(rs){
       DOC_STAFF={};
@@ -1159,14 +1220,13 @@ window.renderDoc=function(){
 function docEditPanel(m,ritrovo,luogo){
   const isConv=(DOC_MODE==="conv");
   return '<div class="noPrint" style="border:2px dashed #1d4ed8;border-radius:12px;padding:10px;margin-bottom:12px;background:#f8fafc">'+
-    '<b style="color:#1e3a8a">✏️ Compila dati documento (non stampato)</b>'+
+    '<b style="color:#1e3a8a">✏️ Dati documento — si salvano TUTTI insieme con il pulsante SALVA in fondo al foglio</b>'+
     '<div class="row"><div><label>Avversario</label><select id="docOpp">'+TEAMS.map(function(t){return '<option'+(t.short_name===m.opponent?" selected":"")+'>'+t.short_name+'</option>';}).join("")+'</select></div><div><label>O altro</label><input id="docOppFree" placeholder="scrivi…"></div></div>'+
     '<div class="row"><div><label>Data</label><input type="date" id="docDate" value="'+m.date+'"></div><div><label>Luogo</label><select id="docPlace">'+(SETTINGS.luoghi||[]).map(function(x){return '<option'+(x===luogo?" selected":"")+'>'+x+'</option>';}).join("")+'</select></div></div>'+
     '<div class="row"><div><label style="'+(isConv?"":"font-weight:800;color:#1e3a8a")+'">Orario inizio</label><input type="time" id="docTime" value="'+(m.time||"")+'" onchange="docSyncTime(\'start\')"></div><div><label style="'+(isConv?"font-weight:800;color:#c8102e":"")+'">Orario ritrovo (−1h15)</label><input type="time" id="docRitrovo" value="'+ritrovo+'" onchange="docSyncTime(\'rit\')"></div></div>'+
     '<div class="row"><div><label>Competizione</label><select id="docComp"><option'+(m.competition==="Campionato"?" selected":"")+'>Campionato</option><option'+(m.competition==="Coppa"?" selected":"")+'>Coppa</option><option'+(m.competition==="Amichevole"?" selected":"")+'>Amichevole</option><option'+(m.competition==="Torneo"?" selected":"")+'>Torneo</option></select></div><div><label>Categoria</label><input id="docCat" value="'+(m.category||"Under 14")+'"></div></div>'+
     '<label>Arbitro</label><input id="docRef" value="'+(m.referee||"")+'" placeholder="nome arbitro">'+
-    '<label>🕘 Storico '+(isConv?"convocazioni":"distinte")+'</label><div class="row"><select id="docHistSel"></select><button class="btn sec" style="margin:0" onclick="loadDocHistory()">Carica</button></div>'+
-    '<button class="btn ok" onclick="saveDocEdit()">💾 Salva dati documento</button></div>';
+    '<label>🕘 Storico '+(isConv?"convocazioni":"distinte")+' (carica una versione vecchia nel foglio)</label><div class="row"><select id="docHistSel"></select><button class="btn sec" style="margin:0" onclick="loadDocHistory()">Carica</button></div></div>';
 }
 function buildDoc(){
   var m=CUR_DOC_MATCH,out=$("docOut");if(!m||!out)return;
@@ -1177,19 +1237,24 @@ function buildDoc(){
   var viaAvv=getVia(m.opponent);
   var dataFmt=m.date.split("-").reverse().join("/");
   var gara=(ci.den+" VS "+teamOfficial(m.opponent));
-  var dsb=$("docSaveBtn");if(dsb)dsb.classList.toggle("hidden",DOC_MODE!=="conv");
   sb.from("match_players").select("*").eq("match_id",m.id).then(function(r){
     var mpM={};(r.data||[]).forEach(function(x){mpM[x.player_id]=x;});
     var elenco=PLAYERS.filter(function(p){return inRosa(p,m.date);}).sort(function(a,b){return (a.jersey_number||99)-(b.jersey_number||99);});
     var h=docEditPanel(m,ritrovo,luogo);
     if(DOC_MODE==="dist"){
+      var savedRows=elenco.filter(function(p){var x=mpM[p.id];return x&&x.convocated&&x.dist_order!=null;});
+      var distSaved=savedRows.length>0;
       if(DOC_ROWS_MATCH!==m.id){
         DOC_ROWS_MATCH=m.id;
-        var ordArr=elenco.filter(function(p){var x=mpM[p.id];return x&&x.convocated&&x.dist_order!=null;}).sort(function(a,b){return (mpM[a.id].dist_order||0)-(mpM[b.id].dist_order||0);}).map(function(p){return p.id;});
-        if(ordArr.length){DOC_ROWS=ordArr.slice(0,20);}
-        else{DOC_ROWS=elenco.filter(function(p){var x=mpM[p.id];return !x||x.convocated;}).slice(0,20).map(function(p){return p.id;});}
+        if(distSaved){
+          savedRows.sort(function(a,b){return (mpM[a.id].dist_order||0)-(mpM[b.id].dist_order||0);});
+          DOC_ROWS=savedRows.map(function(p){return p.id;}).slice(0,20);
+        }else{
+          DOC_ROWS=elenco.filter(function(p){var x=mpM[p.id];return !x||x.convocated;}).slice(0,20).map(function(p){return p.id;});
+        }
         while(DOC_ROWS.length<20)DOC_ROWS.push("");
       }
+      h+='<div class="noPrint" style="font-size:11px;font-weight:800;margin-bottom:6px;color:'+(distSaved?'#166534':'#92400e')+'">'+(distSaved?'📄 Giocatori caricati dall\'ULTIMA DISTINTA SALVATA per questa partita.':'🆕 Nessuna distinta salvata per questa partita: parto dalla rosa in ordine di numero. Compila e premi SALVA DISTINTA.')+'</div>';
       var cnt={};DOC_ROWS.forEach(function(id){if(id){cnt[id]=(cnt[id]||0)+1;}});
       var scnt={};Object.keys(DOC_STAFF).forEach(function(rl){var id=DOC_STAFF[rl];if(id){scnt[id]=(scnt[id]||0)+1;}});
       var esclusi=elenco.filter(function(p){return DOC_ROWS.indexOf(p.id)===-1;});
@@ -1217,7 +1282,7 @@ function buildDoc(){
         h+='<tr'+(dupS?' style="background:#fee2e2"':'')+'><td class="rl">'+rl+'</td><td><select onchange="setDocStaff(\''+rl.replace(/'/g,"\\'")+'\',this.value)"><option value="">— scegli —</option>'+STAFF.map(function(s){return '<option value="'+s.id+'"'+(sel===s.id?" selected":"")+'>'+s.full_name+'</option>';}).join("")+'</select></td><td>'+staffField(sel,"figc_id")+'</td><td>'+staffField(sel,"doc_id")+'</td></tr>';
       });
       h+='</table></div>';
-      h+='<div class="docBtns noPrint"><button class="btn ok" onclick="saveDist()">💾 Salva distinta</button></div>';
+      h+='<div class="docBtns noPrint"><button class="btn ok" onclick="saveDist()">💾 SALVA DISTINTA (dati + giocatori + staff)</button></div>';
       h+='<div class="docNotes">Il sottoscritto Dirigente accompagnatore ufficiale dichiara che il presente elenco è redatto in ottemperanza a quanto stabilito dagli artt. 61 e 66 delle N.O.I.F.</div>';
       h+='<div class="docSignRow"><div>L\'ARBITRO<br><br></div><div>IL DIRIGENTE ACCOMPAGNATORE UFFICIALE<br><br></div></div>';
       h+='</div>';
@@ -1248,6 +1313,7 @@ function buildDoc(){
         '<td><select onchange="convSet(\''+p.id+'\',\'conv\',this.value)"><option value="1"'+(s.conv?" selected":"")+'>SI</option><option value="0"'+(!s.conv?" selected":"")+'>NO</option></select></td>'+
         '<td><select onchange="convSet(\''+p.id+'\',\'note\',this.value)">'+MOTIVI_CONV.map(function(o){return '<option'+(s.note===o?" selected":"")+'>'+o+'</option>';}).join("")+'</select></td></tr>';});
       h+='</table></div>';
+      h+='<div class="docBtns noPrint"><button class="btn ok" onclick="saveConv()">💾 SALVA CONVOCAZIONE (dati + SI/NO)</button></div>';
       h+='<div class="docNotes">E OBBLIGATORIO PRESENTARSI IN DIVISA DI RAPPRESENTANZA e BORSONE UFFICIALE DELLA SOCIETA · SI RACCOMANDA LA PUNTUALITA · IN CASO DI RITARDO E/O PROBLEMI AVVISARE TEMPESTIVAMENTE IL DIRIGENTE · SE RICHIESTO PORTARE UN DOCUMENTO DI IDENTITA SEMPRE IN ORIGINALE · IL MANCATO RISPETTO E DA CONSIDERARSI UN GRAVE INADEMPIMENTO DISCIPLINARE SALVO VALIDI E GIUSTIFICATI MOTIVI VALUTATI DALLO STAFF TECNICO E SOCIETARIO</div>';
       h+='<div class="docSignRow"><div>IL DIRIGENTE:</div><div>DATA: '+dataFmt+'</div></div>';
       h+='</div>';
