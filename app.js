@@ -34,7 +34,8 @@ const DOC_CSS=
 "table.docGrid th{background:#d9d9d9;border:1px solid #000;font-size:9px;font-weight:800;padding:3px 2px}"+
 "table.docGrid td{border:1px solid #000;font-size:10px;padding:2px 3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}"+
 "table.docGrid select{width:100%;font-size:11px;padding:3px 2px;border:1px solid #999;border-radius:3px;background:#fff}"+
-".col-cap,.col-matr,.col-tess{display:none}"+
+"table.docGrid input.capIn{width:100%;font-size:10px;padding:3px 2px;border:1px solid #999;border-radius:3px;background:#fff}"+
+".col-matr,.col-tess{display:none}"+
 ".docBtns{display:flex;gap:8px;margin:10px 0}.docBtns .btn{margin:0}"+
 ".docNotes{font-size:8px;line-height:1.3;text-align:center;padding:4px 6px;border-top:2px solid #000}"+
 ".docSignRow{display:flex;border-top:2px solid #000}"+
@@ -66,10 +67,10 @@ const DOC_CSS=
 ".convLogoCol .dlogo-round{height:38px}"+
 ".convLogoCol .auto{height:9px}"+
 ".docYellow{background:#ffff00;text-align:center;font-weight:900;font-size:16px;letter-spacing:2px;padding:4px;border-top:3px solid #000;border-bottom:3px solid #000}"+
-"@media (min-width:700px){.col-cap,.col-matr,.col-tess{display:table-cell}.docWrap{font-size:11px}.docTop .dlogo{height:34px}.docTop .dlogo-round{height:46px}}"+
-"@media print{.docWrap{width:190mm;max-width:none;font-size:9pt}.docScroll{overflow:visible}table.docGrid{table-layout:auto}table.docGrid th{font-size:8pt}table.docGrid td{font-size:8.5pt;white-space:normal}table.docGrid select{font-size:8.5pt;border:none;background:transparent;padding:0}.col-cap,.col-matr,.col-tess{display:table-cell}.docTop .dlogo{height:13mm}.docTop .dlogo-round{height:18mm}.docSocName{font-size:17pt}.docContacts{font-size:7.5pt}.docBarGrey{font-size:11pt}.docBarGrey.small{font-size:8.5pt}.docMatchTitle{font-size:13pt}.docMetaRow{font-size:8.5pt;flex-wrap:nowrap}.docNotes{font-size:7pt}.docYellow{font-size:15pt}.docTopConv .dlogo-round{height:15mm}.docTopConv .auto{height:5mm}.docSignRow div{font-size:9pt}.convHead .titleBox span{font-size:17pt;letter-spacing:4px}.convYellow{font-size:15pt}.convNote{font-size:7pt}.convGrid td,.convGrid th{font-size:8.5pt}.convMeta th,.convMeta td{font-size:8.5pt}.noPrint{display:none!important}}";
+"@media (min-width:700px){.col-matr,.col-tess{display:table-cell}.docWrap{font-size:11px}.docTop .dlogo{height:34px}.docTop .dlogo-round{height:46px}}"+
+"@media print{.docWrap{width:190mm;max-width:none;font-size:9pt}.docScroll{overflow:visible}table.docGrid{table-layout:auto}table.docGrid th{font-size:8pt}table.docGrid td{font-size:8.5pt;white-space:normal}table.docGrid select{font-size:8.5pt;border:none;background:transparent;padding:0}table.docGrid input.capIn{font-size:8.5pt;border:none;background:transparent;padding:0}.col-matr,.col-tess{display:table-cell}.docTop .dlogo{height:13mm}.docTop .dlogo-round{height:18mm}.docSocName{font-size:17pt}.docContacts{font-size:7.5pt}.docBarGrey{font-size:11pt}.docBarGrey.small{font-size:8.5pt}.docMatchTitle{font-size:13pt}.docMetaRow{font-size:8.5pt;flex-wrap:nowrap}.docNotes{font-size:7pt}.docYellow{font-size:15pt}.docTopConv .dlogo-round{height:15mm}.docTopConv .auto{height:5mm}.docSignRow div{font-size:9pt}.convHead .titleBox span{font-size:17pt;letter-spacing:4px}.convYellow{font-size:15pt}.convNote{font-size:7pt}.convGrid td,.convGrid th{font-size:8.5pt}.convMeta th,.convMeta td{font-size:8.5pt}.noPrint{display:none!important}}";
 
-let ALL_PLAYERS=[],ROSA_DATA=[],PLAYERS=[],PARTITE=[],TEAMS=[],STAFF=[],CLUB_ID=null,CURRENT_SESSION=null,EDIT_ID=null,ATT_STATE={},PART_STATE={},SETTINGS={},SESSION_DATES=new Set(),CONV_STATE={},CONV_OVERRIDE=false,DOC_STAFF={},DOC_ROWS=[],DOC_ROWS_MATCH=null,CAL_ALL=null,LIVE_MP={},LIVE_EV=[];
+let ALL_PLAYERS=[],ROSA_DATA=[],PLAYERS=[],PARTITE=[],TEAMS=[],STAFF=[],CLUB_ID=null,CURRENT_SESSION=null,EDIT_ID=null,ATT_STATE={},PART_STATE={},SETTINGS={},SESSION_DATES=new Set(),CONV_STATE={},CONV_OVERRIDE=false,DOC_STAFF={},DOC_ROWS=[],DOC_ROWS_MATCH=null,DOC_CAPS={},CAL_ALL=null,LIVE_MP={},LIVE_EV=[];
 let CAL_VIEW={y:new Date().getFullYear(),m:new Date().getMonth()};
 let PM_CAL={y:new Date().getFullYear(),m:new Date().getMonth()};
 let FOTO_NP=null,FOTO_ED=null,SH_ID=null,CUR_PART=null,CUR_DOC_MATCH=null,DOC_MODE="dist";
@@ -1138,6 +1139,7 @@ function staffField(id,f){if(!id)return "";var s=STAFF.find(function(x){return x
 window.showDoc=function(m){DOC_MODE=m;CONV_OVERRIDE=false;var dd=$("docTabD"),dc=$("docTabC");if(dd)dd.className="btn "+(m==="dist"?"":"sec");if(dc)dc.className="btn "+(m==="conv"?"":"sec");renderDoc();};
 window.setDocStaff=function(role,id){DOC_STAFF[role]=id;buildDoc();};
 window.setDocRow=function(i,id){DOC_ROWS[i]=id;buildDoc();};
+window.setDocCap=function(pid,v){if(pid)DOC_CAPS[pid]=v;};
 window.docSyncTime=function(which){
   const tIn=$("docTime"),tRit=$("docRitrovo");
   if(!tIn||!tRit)return;
@@ -1206,13 +1208,13 @@ window.saveDist=async function(){
   }
   const srows=Object.keys(DOC_STAFF).filter(function(k){return DOC_STAFF[k];}).map(function(k){return{match_id:CUR_DOC_MATCH.id,role:k,staff_id:DOC_STAFF[k]};});
   for(const s of srows){await sb.from("match_staff").upsert(s,{onConflict:"match_id,role"});}
-  await sb.from("doc_history").insert({club_id:CLUB_ID,match_id:CUR_DOC_MATCH.id,doc_type:"dist",data:{rows:DOC_ROWS,staff:DOC_STAFF}});
+  await sb.from("doc_history").insert({club_id:CLUB_ID,match_id:CUR_DOC_MATCH.id,doc_type:"dist",data:{rows:DOC_ROWS,staff:DOC_STAFF,caps:DOC_CAPS}});
   if(LIVE&&LIVE.matchId===CUR_DOC_MATCH.id){
     LIVE.distOrder=DOC_ROWS.filter(function(x){return x;});
     SETTINGS.live=LIVE;persistSettings();
     renderPitch();
   }
-  alert("✅ DISTINTA SALVATA COMPLETA:\ndati intestazione + giocatori (ordine e numeri) + staff.\nIl Live e le riaperture useranno questi dati.");
+  alert("✅ DISTINTA SALVATA COMPLETA:\ndati intestazione + giocatori (ordine, numeri, CAP/V.CAP) + staff.");
   populateMatchSelect("docMatch");$("docMatch").value=CUR_DOC_MATCH.id;
   renderDoc();
 };
@@ -1235,6 +1237,7 @@ window.loadDocHistory=async function(){
     DOC_ROWS=(r.data.data.rows||[]).slice();
     while(DOC_ROWS.length<20)DOC_ROWS.push("");
     DOC_STAFF=r.data.data.staff||{};
+    DOC_CAPS=r.data.data.caps||{};
     DOC_ROWS_MATCH=CUR_DOC_MATCH.id;
     buildDoc();
   }else{
@@ -1259,9 +1262,13 @@ window.renderDoc=function(){
   if(!m){out.innerHTML='<div class="spin">Nessuna partita</div>';return;}
   var dsb=$("docSaveBtn");if(dsb)dsb.classList.add("hidden");
   if(DOC_MODE==="dist"){
-    sb.from("match_staff").select("*").eq("match_id",m.id).then(function(rs){
+    Promise.all([
+      sb.from("match_staff").select("*").eq("match_id",m.id),
+      sb.from("doc_history").select("data").eq("match_id",m.id).eq("doc_type","dist").order("created_at",{ascending:false}).limit(1)
+    ]).then(function(res){
       DOC_STAFF={};
-      (rs.data||[]).forEach(function(x){DOC_STAFF[x.role]=x.staff_id;});
+      (res[0].data||[]).forEach(function(x){DOC_STAFF[x.role]=x.staff_id;});
+      DOC_CAPS=(res[1].data&&res[1].data[0]&&res[1].data[0].data&&res[1].data[0].data.caps)||{};
       DOC_ROWS_MATCH=null;
       buildDoc();
     });
@@ -1331,12 +1338,13 @@ function buildDoc(){
       h+='<div class="docMatchTitle">'+gara+'</div>';
       h+='<div class="docMetaRow"><span class="lbl">VALEVOLE PER:</span><span class="val">'+m.competition+' '+(m.category||"Under 14")+'</span><span class="lbl">DATA:</span><span class="val">'+dataFmt+'</span><span class="lbl">ORARIO:</span><span class="val">'+(m.time?fmtTime(m.time):"")+'</span></div>';
       h+='<div class="docMetaRow"><span class="lbl">CAMPO:</span><span class="val">'+(m.home?(luogo+(viaLuogo?(" "+viaLuogo):"")):(viaAvv||luogo+(viaLuogo?(" "+viaLuogo):"")))+'</span><span class="lbl">ARBITRO:</span><span class="val">'+(m.referee||"")+'</span></div>';
-      h+='<div class="docScroll"><table class="docGrid"><tr><th style="width:8%">N°</th><th>COGNOME e NOME</th><th class="col-cap" style="width:10%">CAP/V.CAP</th><th class="col-matr" style="width:14%">MATRICOLA</th><th style="width:15%">DATA NASCITA</th><th class="col-tess" style="width:15%">TESSERA/DOC.</th></tr>';
+      h+='<div class="docScroll"><table class="docGrid"><tr><th style="width:6%">N°</th><th>COGNOME e NOME</th><th style="width:11%">CAP/V.CAP</th><th class="col-matr" style="width:13%">MATRICOLA</th><th style="width:14%">DATA NASCITA</th><th class="col-tess" style="width:14%">TESSERA/DOC.</th></tr>';
       for(var i=0;i<20;i++){
         var pid=DOC_ROWS[i];
         var p=elenco.find(function(x){return x.id===pid;});
         var dup=pid&&cnt[pid]>1;
-        h+='<tr'+(dup?' style="background:#fee2e2"':'')+'><td>'+(i+1)+'</td><td><select onchange="setDocRow('+i+',this.value)">'+opts.replace('value="'+pid+'"','value="'+pid+'" selected')+'</select>'+(dup?' <b style="color:#991b1b">⚠</b>':'')+'</td><td class="col-cap"></td><td class="col-matr">'+(p?(p.figc_id||""):"")+'</td><td>'+(p?birthFmt(p.birth_date):"")+'</td><td class="col-tess">'+(p?(p.card_number||""):"")+'</td></tr>';
+        var capVal=pid?(DOC_CAPS[pid]||""):"";
+        h+='<tr'+(dup?' style="background:#fee2e2"':'')+'><td>'+(i+1)+'</td><td><select onchange="setDocRow('+i+',this.value)">'+opts.replace('value="'+pid+'"','value="'+pid+'" selected')+'</select>'+(dup?' <b style="color:#991b1b">⚠</b>':'')+'</td><td>'+(pid?'<input class="capIn" value="'+capVal+'" onchange="setDocCap(\''+pid+'\',this.value)" placeholder="Cap / V.Cap">':'')+'</td><td class="col-matr">'+(p?(p.figc_id||""):"")+'</td><td>'+(p?birthFmt(p.birth_date):"")+'</td><td class="col-tess">'+(p?(p.card_number||""):"")+'</td></tr>';
       }
       h+='</table></div>';
       h+='<div class="docScroll"><table class="docGrid"><tr><th style="width:34%">RUOLO STAFF</th><th>NOME</th><th style="width:14%">TESS. FIGC</th><th style="width:16%">DOCUMENTO N.</th></tr>';
