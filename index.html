@@ -91,7 +91,8 @@ table.rep td.nome{font-weight:700}
 .liveScore{font-size:18px;font-weight:900;margin-top:3px}.liveGol{font-size:11px;margin-top:3px;min-height:14px}
 .liveBar{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .liveBar button{flex:1;min-width:64px;padding:10px 4px;border:none;border-radius:10px;background:rgba(255,255,255,.15);color:#fff;font-weight:800;font-size:12px;cursor:pointer}
-/* ===== CALENDARIO GRANDE (grafica rinnovata) ===== */
+
+/* ===== CALENDARIO GRANDE ===== */
 .cgCard{background:linear-gradient(180deg,#ffffff,#f8fafc);border:1px solid #e2e8f0;border-radius:20px;box-shadow:0 10px 30px rgba(15,23,42,.08);padding:14px}
 .cgHead{display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .cgNav{width:42px;height:42px;border-radius:14px;border:1px solid #e2e8f0;background:#fff;color:#1e3a8a;font-size:22px;font-weight:900;cursor:pointer;box-shadow:0 2px 8px rgba(15,23,42,.08)}
@@ -126,6 +127,7 @@ table.rep td.nome{font-weight:700}
 .cgActions button{border:none;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:800;cursor:pointer;background:#eef2ff;color:#3730a3}
 .cgEmpty{text-align:center;color:#64748b;font-weight:700;padding:16px}
 @media(max-width:420px){.cgNum{font-size:13px}.cgDot{min-width:14px;height:14px;font-size:8px}.cgMonth{font-size:17px}}
+
 nav{position:fixed;bottom:0;left:0;right:0;z-index:40;background:#fff;border-top:1px solid #e2e8f0;display:flex;box-shadow:0 -2px 12px rgba(15,23,42,.08)}
 nav button{flex:1;border:none;background:none;padding:9px 2px 7px;font-size:10px;font-weight:800;color:#64748b;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
 nav button .ic{font-size:18px}
@@ -143,7 +145,6 @@ nav button.on{color:#1e3a8a}
 </header>
 
 <main>
-  <!-- AUTH -->
   <div class="view authWrap" id="viewAuth">
     <div class="card">
       <h2>🔐 Accedi</h2>
@@ -163,7 +164,6 @@ nav button.on{color:#1e3a8a}
     </div>
   </div>
 
-  <!-- ONBOARD -->
   <div class="view authWrap hidden" id="viewOnboard">
     <div class="card">
       <h2>🏟️ Configura la tua società</h2>
@@ -174,7 +174,6 @@ nav button.on{color:#1e3a8a}
     </div>
   </div>
 
-  <!-- HOME -->
   <div class="view hidden" id="viewHome">
     <div class="card" style="text-align:center;background:linear-gradient(135deg,#1e3a8a,#0b1035);color:#fff">
       <h2 style="justify-content:center;color:#fff">⚽ Benvenuto</h2>
@@ -193,7 +192,6 @@ nav button.on{color:#1e3a8a}
     </div>
   </div>
 
-  <!-- SOCIETA' -->
   <div class="view hidden" id="viewSoc">
     <div class="card">
       <h2>🏟️ Società avversarie <span class="vb blu" id="tsCount">0</span></h2>
@@ -223,10 +221,8 @@ nav button.on{color:#1e3a8a}
     </div>
   </div>
 
-  <!-- CALENDARIO GRANDE -->
   <div class="view hidden" id="viewCal"></div>
 
-  <!-- ROSA -->
   <div class="view hidden" id="viewRosa">
     <div class="card hidden" id="addCard">
       <h2>➕ Nuovo giocatore</h2>
@@ -263,7 +259,6 @@ nav button.on{color:#1e3a8a}
     </div>
   </div>
 
-  <!-- PRESENZE -->
   <div class="view hidden" id="viewPres">
     <div class="card">
       <h2>🗓️ <span id="calTitle"></span></h2>
@@ -304,7 +299,6 @@ nav button.on{color:#1e3a8a}
     <button class="btn ghost" onclick="showPresReport()">📊 Vedi riepilogo presenze</button>
   </div>
 
-  <!-- PARTITE -->
   <div class="view hidden" id="viewPart">
     <div id="partHub">
       <div class="card">
@@ -374,7 +368,6 @@ nav button.on{color:#1e3a8a}
     </div>
   </div>
 
-  <!-- FORMAZIONE -->
   <div class="view hidden" id="viewForm">
     <div class="card">
       <h2>🧾 Formazione</h2>
@@ -385,7 +378,6 @@ nav button.on{color:#1e3a8a}
     </div>
   </div>
 
-  <!-- SOSTITUZIONI -->
   <div class="view hidden" id="viewSub">
     <div class="card">
       <h2>🔄 Sostituzioni</h2>
@@ -397,7 +389,6 @@ nav button.on{color:#1e3a8a}
     </div>
   </div>
 
-  <!-- DOCUMENTI -->
   <div class="view hidden" id="viewDoc">
     <div class="card">
       <h2>📄 Documenti di gara</h2>
@@ -410,7 +401,6 @@ nav button.on{color:#1e3a8a}
     </div>
   </div>
 
-  <!-- IMPOSTAZIONI -->
   <div class="view hidden" id="viewSet">
     <div class="card">
       <h2>🏟️ Luoghi di gioco</h2>
@@ -422,7 +412,6 @@ nav button.on{color:#1e3a8a}
     </div>
   </div>
 
-  <!-- REGISTRO -->
   <div class="view hidden" id="viewReg">
     <div class="card"><h2>📈 Registro</h2><div id="regKpi" style="display:flex;gap:8px;text-align:center"></div></div>
     <div class="card"><h2>🏃 Presenze per giocatore</h2><div id="regGrafPres"></div></div>
