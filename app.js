@@ -39,13 +39,35 @@ const DOC_CSS=
 ".docNotes{font-size:8px;line-height:1.3;text-align:center;padding:4px 6px;border-top:2px solid #000}"+
 ".docSignRow{display:flex;border-top:2px solid #000}"+
 ".docSignRow div{flex:1;text-align:center;font-weight:800;font-size:10px;padding:8px 4px}"+
+".convWrap{border:2px solid #000}"+
+".convHead{display:flex;align-items:stretch}"+
+".convHead .logoBox{width:110px;padding:4px;background:#fff;border:2px solid #1f3864;border-bottom:none;display:flex;flex-direction:column;align-items:center;justify-content:center}"+
+".convHead .logoBox img{width:74px;height:74px;object-fit:contain}"+
+".convHead .logoBox .aut{font-size:8px;font-weight:900;color:#c00000;letter-spacing:1px;margin-top:2px}"+
+".convHead .titleBox{flex:1;background:#b9c4ea;border:2px solid #1f3864;border-left:none;border-bottom:none;display:flex;align-items:center;justify-content:center;padding:8px;overflow:hidden}"+
+".convHead .titleBox span{font-family:'Arial Black',Arial,sans-serif;color:#1f3864;font-size:clamp(13px,3.4vw,26px);letter-spacing:5px;font-weight:900;white-space:nowrap}"+
+".convYellow{background:#ffff00;text-align:center;font-weight:900;font-size:clamp(14px,3vw,22px);letter-spacing:2px;padding:5px;border:3px solid #1f3864;color:#000}"+
+"table.convMeta{width:100%;border-collapse:collapse;font-size:11px;border:1px solid #000}"+
+".convMeta th{background:#d9d9d9;border:1px solid #000;text-align:left;font-size:9px;padding:3px 5px;width:82px;font-weight:800}"+
+".convMeta td{border:1px solid #000;padding:3px 6px}"+
+".convMeta .center{text-align:center}"+
+"table.convGrid{width:100%;border-collapse:collapse;font-size:11px}"+
+".convGrid th{border:1px solid #000;padding:4px 2px;font-size:9px;background:#fff;font-weight:800}"+
+".convGrid td{border:1px solid #000;padding:2px 4px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}"+
+".convGrid select{width:100%;font-size:10px;border:1px solid #bbb;background:#ececec;border-radius:2px;padding:2px}"+
+".convNote{border-top:3px solid #ffff00;border-bottom:3px solid #1f3864;padding:4px 6px;font-size:8.5px;text-align:center;line-height:1.4;color:#000}"+
+".convSign{display:flex;border:1px solid #000;border-top:none}"+
+".convSign div{padding:6px 8px;font-weight:800;font-size:11px}"+
+".convSign .l{flex:1;border-right:1px solid #000}"+
+".convSign .m{flex:1;border-right:1px solid #000}"+
+".convSign .r{flex:1}"+
 ".docTopConv{display:flex;align-items:center;gap:8px;padding:6px;background:#dbe6f7}"+
 ".convLogoCol{display:flex;flex-direction:column;align-items:center;gap:2px;flex:0 0 auto}"+
 ".convLogoCol .dlogo-round{height:38px}"+
 ".convLogoCol .auto{height:9px}"+
 ".docYellow{background:#ffff00;text-align:center;font-weight:900;font-size:16px;letter-spacing:2px;padding:4px;border-top:3px solid #000;border-bottom:3px solid #000}"+
 "@media (min-width:700px){.col-cap,.col-matr,.col-tess{display:table-cell}.docWrap{font-size:11px}.docTop .dlogo{height:34px}.docTop .dlogo-round{height:46px}}"+
-"@media print{.docWrap{width:190mm;max-width:none;font-size:9pt}.docScroll{overflow:visible}table.docGrid{table-layout:auto}table.docGrid th{font-size:8pt}table.docGrid td{font-size:8.5pt;white-space:normal}table.docGrid select{font-size:8.5pt;border:none;background:transparent;padding:0}.col-cap,.col-matr,.col-tess{display:table-cell}.docTop .dlogo{height:13mm}.docTop .dlogo-round{height:18mm}.docSocName{font-size:17pt}.docContacts{font-size:7.5pt}.docBarGrey{font-size:11pt}.docBarGrey.small{font-size:8.5pt}.docMatchTitle{font-size:13pt}.docMetaRow{font-size:8.5pt;flex-wrap:nowrap}.docNotes{font-size:7pt}.docYellow{font-size:15pt}.docTopConv .dlogo-round{height:15mm}.docTopConv .auto{height:5mm}.docSignRow div{font-size:9pt}.noPrint{display:none!important}}";
+"@media print{.docWrap{width:190mm;max-width:none;font-size:9pt}.docScroll{overflow:visible}table.docGrid{table-layout:auto}table.docGrid th{font-size:8pt}table.docGrid td{font-size:8.5pt;white-space:normal}table.docGrid select{font-size:8.5pt;border:none;background:transparent;padding:0}.col-cap,.col-matr,.col-tess{display:table-cell}.docTop .dlogo{height:13mm}.docTop .dlogo-round{height:18mm}.docSocName{font-size:17pt}.docContacts{font-size:7.5pt}.docBarGrey{font-size:11pt}.docBarGrey.small{font-size:8.5pt}.docMatchTitle{font-size:13pt}.docMetaRow{font-size:8.5pt;flex-wrap:nowrap}.docNotes{font-size:7pt}.docYellow{font-size:15pt}.docTopConv .dlogo-round{height:15mm}.docTopConv .auto{height:5mm}.docSignRow div{font-size:9pt}.convHead .titleBox span{font-size:17pt;letter-spacing:4px}.convYellow{font-size:15pt}.convNote{font-size:7pt}.convGrid td,.convGrid th{font-size:8.5pt}.convMeta th,.convMeta td{font-size:8.5pt}.noPrint{display:none!important}}";
 
 let ALL_PLAYERS=[],ROSA_DATA=[],PLAYERS=[],PARTITE=[],TEAMS=[],STAFF=[],CLUB_ID=null,CURRENT_SESSION=null,EDIT_ID=null,ATT_STATE={},PART_STATE={},SETTINGS={},SESSION_DATES=new Set(),CONV_STATE={},CONV_OVERRIDE=false,DOC_STAFF={},DOC_ROWS=[],DOC_ROWS_MATCH=null,CAL_ALL=null,LIVE_MP={},LIVE_EV=[];
 let CAL_VIEW={y:new Date().getFullYear(),m:new Date().getMonth()};
@@ -1262,6 +1284,13 @@ function docEditPanel(m,ritrovo,luogo){
     '<div class="row"><div><label>Categoria</label><input id="docCat" value="'+(m.category||"Under 14")+'"></div><div><label>🕘 Storico</label><select id="docHistSel"></select></div></div>'+
     '<button class="btn sec" onclick="loadDocHistory()">Carica versione storica</button></div>';
 }
+function convNoteText(){
+  return "E' OBBLIGATORIO PRESENTARSI IN DIVISA DI RAPPRESENTANZA e BORSONE UFFICIALE DELLA SOCIETA'<br>"+
+         "SI RACCOMANDA LA PUNTUALITA', IN CASO DI RITARDO E/O PROBLEMI, AVVISARE TEMPESTIVAMENTE IL DIRIGENTE<br>"+
+         "SE RICHIESTO DAL DIRIGENTE, PORTARE CON SE UN DOCUMENTO DI IDENTITA' SEMPRE IN ORIGINALE<br>"+
+         "IL MANCATO RISPETTO DI QUANTO SOPRA INDICATO E' DA CONSIDERARSI UN GRAVE INADEMPIMENTO DISCIPLINARE<br>"+
+         "SALVO PER VALIDI E GIUSTIFICATI MOTIVI CHE SARANNO VALUTATI DALLO STAFF TECNICO e SOCIETARIO";
+}
 function buildDoc(){
   var m=CUR_DOC_MATCH,out=$("docOut");if(!m||!out)return;
   var ci=clubInfo(),logo=clubLogo();
@@ -1271,6 +1300,7 @@ function buildDoc(){
   var viaAvv=getVia(m.opponent);
   var dataFmt=m.date.split("-").reverse().join("/");
   var gara=(ci.den+" VS "+teamOfficial(m.opponent));
+  var titoloSoc=(ci.nome||"").replace(/\./g,"");
   sb.from("match_players").select("*").eq("match_id",m.id).then(function(r){
     var mpM={};(r.data||[]).forEach(function(x){mpM[x.player_id]=x;});
     var elenco=PLAYERS.filter(function(p){return inRosa(p,m.date);}).sort(function(a,b){return (a.jersey_number||99)-(b.jersey_number||99);});
@@ -1333,24 +1363,35 @@ function buildDoc(){
         CONV_STATE={};
         elenco.forEach(function(p){var x=mpM[p.id];CONV_STATE[p.id]={conv:x?x.convocated:true,note:x?(x.conv_note||""):""};});
       }
-      h+='<div class="docWrap">';
-      h+='<div class="docTopConv"><div class="convLogoCol"><img class="dlogo dlogo-round" src="'+logo+'" alt="logo"><img class="dlogo auto" src="'+LOGO_AUTOINGROS+'" alt="sponsor"></div><div class="docSocName">'+ci.nome+'</div></div>';
-      h+='<div class="docYellow">CONVOCAZIONE</div>';
-      h+='<div class="docMetaRow"><span class="lbl">CATEGORIA</span><span class="val" style="font-weight:900;text-align:center">'+(m.category||"Under14")+'</span></div>';
-      h+='<div class="docMetaRow"><span class="lbl">PARTITA</span><span class="val" style="font-weight:800;text-align:center">'+gara+'</span></div>';
-      h+='<div class="docMetaRow"><span class="lbl">VALEVOLE PER</span><span class="val">'+m.competition+'</span></div>';
-      h+='<div class="docMetaRow"><span class="lbl">DATA</span><span class="val">'+dataFmt+'</span><span class="lbl">ORARIO RITROVO</span><span class="val" style="font-weight:800">'+ritrovo+'</span></div>';
-      h+='<div class="docMetaRow"><span class="lbl">INDIRIZZO</span><span class="val">'+(m.home?(luogo+(viaLuogo?(" "+viaLuogo):"")):(viaAvv||luogo+(viaLuogo?(" "+viaLuogo):"")))+'</span></div>';
-      h+='<div class="docScroll"><table class="docGrid"><tr><th style="width:8%">N°</th><th style="width:26%">COGNOME</th><th style="width:26%">NOME</th><th style="width:18%">CONVOCATO</th><th style="width:22%">MOTIVAZIONE/NOTE</th></tr>';
-      elenco.forEach(function(p){var s=CONV_STATE[p.id]||{conv:true,note:""};
-        h+='<tr><td>'+(p.jersey_number||"")+'</td><td>'+p.last_name+'</td><td>'+p.first_name+'</td>'+
-        '<td><select onchange="convSet(\''+p.id+'\',\'conv\',this.value)"><option value="1"'+(s.conv?" selected":"")+'>SI</option><option value="0"'+(!s.conv?" selected":"")+'>NO</option></select></td>'+
-        '<td><select onchange="convSet(\''+p.id+'\',\'note\',this.value)">'+MOTIVI_CONV.map(function(o){return '<option'+(s.note===o?" selected":"")+'>'+o+'</option>';}).join("")+'</select></td></tr>';});
-      h+='</table></div>';
-      h+='<div class="docBtns noPrint"><button class="btn ok" onclick="saveConv()">💾 SALVA CONVOCAZIONE (dati + SI/NO)</button></div>';
-      h+='<div class="docNotes">E OBBLIGATORIO PRESENTARSI IN DIVISA DI RAPPRESENTANZA e BORSONE UFFICIALE DELLA SOCIETA · SI RACCOMANDA LA PUNTUALITA · IN CASO DI RITARDO E/O PROBLEMI AVVISARE TEMPESTIVAMENTE IL DIRIGENTE · SE RICHIESTO PORTARE UN DOCUMENTO DI IDENTITA SEMPRE IN ORIGINALE · IL MANCATO RISPETTO E DA CONSIDERARSI UN GRAVE INADEMPIMENTO DISCIPLINARE SALVO VALIDI E GIUSTIFICATI MOTIVI VALUTATI DALLO STAFF TECNICO E SOCIETARIO</div>';
-      h+='<div class="docSignRow"><div>IL DIRIGENTE:</div><div>DATA: '+dataFmt+'</div></div>';
+      var indirizzo=m.home?(ci.addr):(viaAvv||ci.addr);
+      var totRighe=Math.max(26,elenco.length);
+      h+='<div class="docWrap convWrap">';
+      h+='<div class="convHead"><div class="logoBox"><img src="'+logo+'" alt="logo"><div class="aut">AUTOINGROS</div></div><div class="titleBox"><span>'+titoloSoc+'</span></div></div>';
+      h+='<div class="convYellow">CONVOCAZIONE</div>';
+      h+='<table class="convMeta">';
+      h+='<tr><th>CATEGORIA</th><td class="center" colspan="3" style="font-size:16px;font-weight:900">'+(m.category||"Under14")+'</td></tr>';
+      h+='<tr><th>PARTITA</th><td class="center" colspan="3" style="font-size:13px;font-weight:800">'+gara+'</td></tr>';
+      h+='<tr><th>VALEVOLE PER</th><td colspan="3" style="font-size:9px">'+(m.competition||"Campionato")+' Regionale U14</td></tr>';
+      h+='<tr><th>DATA</th><td style="width:32%">'+dataFmt+'</td><th style="width:110px">ORARIO RITROVO</th><td style="width:20%">'+ritrovo+'</td></tr>';
+      h+='<tr><th>INDIRIZZO</th><td colspan="3">'+indirizzo+'</td></tr>';
+      h+='</table>';
+      h+='<table class="convGrid"><tr><th style="width:5%">N°</th><th style="width:27%">COGNOME</th><th style="width:27%">NOME</th><th style="width:16%">CONVOCATO SI/NO</th><th style="width:25%">MOTIVAZIONE E/O NOTE</th></tr>';
+      for(var j=0;j<totRighe;j++){
+        var pl=elenco[j];
+        if(pl){
+          var s=CONV_STATE[pl.id]||{conv:true,note:""};
+          h+='<tr><td>'+(j+1)+'</td><td>'+pl.last_name+'</td><td>'+pl.first_name+'</td>'+
+             '<td><select onchange="convSet(\''+pl.id+'\',\'conv\',this.value)"><option value="1"'+(s.conv?" selected":"")+'>SI</option><option value="0"'+(!s.conv?" selected":"")+'>NO</option></select></td>'+
+             '<td><select onchange="convSet(\''+pl.id+'\',\'note\',this.value)">'+MOTIVI_CONV.map(function(o){return '<option'+(s.note===o?" selected":"")+'>'+o+'</option>';}).join("")+'</select></td></tr>';
+        }else{
+          h+='<tr><td>'+(j+1)+'</td><td></td><td></td><td></td><td></td></tr>';
+        }
+      }
+      h+='</table>';
+      h+='<div class="convNote">'+convNoteText()+'</div>';
+      h+='<div class="convSign"><div class="l">IL DIRIGENTE:</div><div class="m"></div><div class="r">DATA: '+dataFmt+'</div></div>';
       h+='</div>';
+      h+='<div class="docBtns noPrint"><button class="btn ok" onclick="saveConv()">💾 SALVA CONVOCAZIONE (dati + SI/NO)</button></div>';
     }
     out.innerHTML=h;
     populateDocHistory(m);
