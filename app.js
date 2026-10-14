@@ -12,34 +12,34 @@ const LOGO_AUTOINGROS=svgURI('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0
 
 const DEFAULT_CLUB={nome:"A.S.D. BORGARO AUTOINGROS",den:"A.S.D. Borgaro Autoingros",addr:"Via Santa Cristina 16 – 10071 – Borgaro Torinese (TO)",tel:"011 4703268",mail:"segreteria@fcborgaro1965.it",pec:"postmaster@pec.fcborgaro1965.it",piva:"P.IVA 039396940018",matricola:"78854",coni:"39272",logo:"",c1:"#1e3a8a",c2:"#c8102e",acc:"#facc15"};
 const RUOLI_STAFF=["DIRIGENTE ACCOMPAGNATORE UFFICIALE","ALLENATORE","ALLENATORE IN SECONDA","MEDICO SOCIALE","OPERATORE SANITARIO AUSILIARIO","ASSISTENTE DI LINEA DI SOCIETA'","DIRIGENTE ADDETTO AGLI UFF. DI GARA"];
+const STAFF_LAB={"MEDICO SOCIALE":["DOC o TESS. FIGC","TESS. O.D.M."],"DEFAULT":["TESS. FIGC","DOCUMENTO N."]};
 const MOTIVI_CONV=["","NON DISPONIBILE","INFORTUNATO","MALATO","VIAGGIO","SCUOLA","FAMIGLIA","PERMESSO","ALTRO"];
 const EV_LABEL={goal:"⚽ Gol",assist:"🎯 Assist",shot:"💥 Tiro",save:"🧤 Parata",goal_against:"🥅 Gol subito",yellow:"🟨 Ammonizione",red:"🟥 Espulsione",sub_out:"🔄 Esce / Sost.",sub_in:"🔄 Entra in campo"};
 const ACT_ICON={assist:"🎯",shot:"💥",save:"🧤",goal_against:"🥅"};
 const MAX_SUBS=7;
 const DOC_CSS=
 ".docWrap{width:100%;max-width:190mm;margin:0 auto;background:#fff;border:2px solid #000;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#000}"+
-".docTop{display:flex;align-items:center;gap:6px;padding:6px}"+
-".docTop .dlogo{height:30px;width:auto;flex:0 0 auto}"+
-".docTop .dlogo-round{height:42px}"+
-".docSocName{flex:1;min-width:0;text-align:center;font-weight:900;font-family:'Arial Black',Arial,sans-serif;color:#1e3a8a;font-size:clamp(12px,4vw,22px);line-height:1.1;letter-spacing:.5px}"+
-".docContacts{font-size:9px;line-height:1.35;text-align:center;background:#eef2ff;color:#1e3a8a;padding:4px 6px;border-top:1px solid #cbd5e1}"+
-".docBarGrey{background:#bfbfbf;text-align:center;font-weight:800;font-size:13px;padding:3px;border-top:2px solid #000;border-bottom:1px solid #000}"+
-".docBarGrey.small{background:#d9d9d9;font-weight:600;font-size:10px}"+
-".docMatchTitle{background:#d9d9d9;text-align:center;font-weight:900;font-size:14px;padding:5px;border-bottom:2px solid #000}"+
-".docMetaRow{display:flex;flex-wrap:wrap;border-bottom:1px solid #000;font-size:10px}"+
+".distSpacer{height:8px}"+
+".distBar{background:#c9c9c9;text-align:center;font-weight:800;font-size:13px;padding:4px;border:1px solid #000}"+
+".distBarLight{background:#d9d9d9;text-align:center;font-weight:600;font-size:11px;padding:3px;border:1px solid #000}"+
+".distBarLight.bold{font-weight:900;font-size:13px}"+
+".distDecl{font-size:8px;text-align:center;padding:4px 6px;border:1px solid #000;line-height:1.3}"+
+".distSign{display:flex;border:1px solid #000}"+
+".distSign div{flex:1;text-align:center;font-weight:800;font-size:10px;padding:12px 4px}"+
+".distSign div+div{border-left:1px solid #000}"+
+".docMetaRow{display:flex;flex-wrap:wrap;border:1px solid #000;margin-top:-1px;font-size:10px}"+
 ".docMetaRow .lbl{background:#d9d9d9;font-weight:800;padding:3px 5px;border-right:1px solid #000;white-space:nowrap}"+
 ".docMetaRow .val{flex:1;min-width:60px;padding:3px 5px}"+
 ".docScroll{overflow-x:auto}"+
-"table.docGrid{width:100%;border-collapse:collapse;table-layout:fixed}"+
-"table.docGrid th{background:#d9d9d9;border:1px solid #000;font-size:9px;font-weight:800;padding:3px 2px}"+
+"table.docGrid{width:100%;min-width:600px;border-collapse:collapse;table-layout:fixed}"+
+"table.docGrid th{background:#d9d9d9;border:1px solid #000;font-size:8px;font-weight:800;padding:2px}"+
 "table.docGrid td{border:1px solid #000;font-size:10px;padding:2px 3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}"+
-"table.docGrid select{width:100%;font-size:11px;padding:3px 2px;border:1px solid #999;border-radius:3px;background:#fff}"+
+"table.docGrid td.rl{background:#d9d9d9;font-weight:800;font-size:8px;white-space:normal}"+
+"table.docGrid td.lb{background:#d9d9d9;font-weight:800;font-size:8px}"+
+"table.docGrid select{width:100%;font-size:10px;padding:3px 2px;border:1px solid #999;border-radius:3px;background:#fff}"+
 "table.docGrid input.capIn{width:100%;font-size:10px;padding:3px 2px;border:1px solid #999;border-radius:3px;background:#fff}"+
 ".col-matr,.col-tess{display:none}"+
 ".docBtns{display:flex;gap:8px;margin:10px 0}.docBtns .btn{margin:0}"+
-".docNotes{font-size:8px;line-height:1.3;text-align:center;padding:4px 6px;border-top:2px solid #000}"+
-".docSignRow{display:flex;border-top:2px solid #000}"+
-".docSignRow div{flex:1;text-align:center;font-weight:800;font-size:10px;padding:8px 4px}"+
 ".convWrap{border:2px solid #000}"+
 ".convHead{display:flex;align-items:stretch}"+
 ".convHead .logoBox{width:110px;padding:4px;background:#fff;border:2px solid #1f3864;border-bottom:none;display:flex;flex-direction:column;align-items:center;justify-content:center}"+
@@ -52,8 +52,8 @@ const DOC_CSS=
 ".convMeta th{background:#d9d9d9;border:1px solid #000;text-align:left;font-size:9px;padding:3px 5px;width:82px;font-weight:800}"+
 ".convMeta td{border:1px solid #000;padding:3px 6px}"+
 ".convMeta .center{text-align:center}"+
-"table.convGrid{width:100%;border-collapse:collapse;font-size:11px}"+
-".convGrid th{border:1px solid #000;padding:4px 2px;font-size:9px;background:#fff;font-weight:800}"+
+"table.convGrid{width:100%;min-width:560px;border-collapse:collapse;font-size:11px}"+
+".convGrid th{border:1px solid #000;padding:4px 2px;font-size:9px;background:#d9d9d9;font-weight:800}"+
 ".convGrid td{border:1px solid #000;padding:2px 4px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}"+
 ".convGrid select{width:100%;font-size:10px;border:1px solid #bbb;background:#ececec;border-radius:2px;padding:2px}"+
 ".convNote{border-top:3px solid #ffff00;border-bottom:3px solid #1f3864;padding:4px 6px;font-size:8.5px;text-align:center;line-height:1.4;color:#000}"+
@@ -62,13 +62,8 @@ const DOC_CSS=
 ".convSign .l{flex:1;border-right:1px solid #000}"+
 ".convSign .m{flex:1;border-right:1px solid #000}"+
 ".convSign .r{flex:1}"+
-".docTopConv{display:flex;align-items:center;gap:8px;padding:6px;background:#dbe6f7}"+
-".convLogoCol{display:flex;flex-direction:column;align-items:center;gap:2px;flex:0 0 auto}"+
-".convLogoCol .dlogo-round{height:38px}"+
-".convLogoCol .auto{height:9px}"+
-".docYellow{background:#ffff00;text-align:center;font-weight:900;font-size:16px;letter-spacing:2px;padding:4px;border-top:3px solid #000;border-bottom:3px solid #000}"+
-"@media (min-width:700px){.col-matr,.col-tess{display:table-cell}.docWrap{font-size:11px}.docTop .dlogo{height:34px}.docTop .dlogo-round{height:46px}}"+
-"@media print{.docWrap{width:190mm;max-width:none;font-size:9pt}.docScroll{overflow:visible}table.docGrid{table-layout:auto}table.docGrid th{font-size:8pt}table.docGrid td{font-size:8.5pt;white-space:normal}table.docGrid select{font-size:8.5pt;border:none;background:transparent;padding:0}table.docGrid input.capIn{font-size:8.5pt;border:none;background:transparent;padding:0}.col-matr,.col-tess{display:table-cell}.docTop .dlogo{height:13mm}.docTop .dlogo-round{height:18mm}.docSocName{font-size:17pt}.docContacts{font-size:7.5pt}.docBarGrey{font-size:11pt}.docBarGrey.small{font-size:8.5pt}.docMatchTitle{font-size:13pt}.docMetaRow{font-size:8.5pt;flex-wrap:nowrap}.docNotes{font-size:7pt}.docYellow{font-size:15pt}.docTopConv .dlogo-round{height:15mm}.docTopConv .auto{height:5mm}.docSignRow div{font-size:9pt}.convHead .titleBox span{font-size:17pt;letter-spacing:4px}.convYellow{font-size:15pt}.convNote{font-size:7pt}.convGrid td,.convGrid th{font-size:8.5pt}.convMeta th,.convMeta td{font-size:8.5pt}.noPrint{display:none!important}}";
+"@media (min-width:700px){.col-matr,.col-tess{display:table-cell}.docWrap{font-size:11px}}"+
+"@media print{.docWrap{width:190mm;max-width:none;font-size:9pt}.docScroll{overflow:visible}table.docGrid{table-layout:auto;min-width:0}table.docGrid th{font-size:8pt}table.docGrid td{font-size:8.5pt;white-space:normal}table.docGrid select{font-size:8.5pt;border:none;background:transparent;padding:0}table.docGrid input.capIn{font-size:8.5pt;border:none;background:transparent;padding:0}.col-matr,.col-tess{display:table-cell}.docMetaRow{font-size:8.5pt;flex-wrap:nowrap}.distDecl{font-size:7pt}.distSign div{font-size:9pt}.convHead .titleBox span{font-size:17pt;letter-spacing:4px}.convYellow{font-size:15pt}.convNote{font-size:7pt}.convGrid td,.convGrid th{font-size:8.5pt}table.convGrid{min-width:0}.convMeta th,.convMeta td{font-size:8.5pt}.noPrint{display:none!important}.distSpacer{height:5px}}";
 
 let ALL_PLAYERS=[],ROSA_DATA=[],PLAYERS=[],PARTITE=[],TEAMS=[],STAFF=[],CLUB_ID=null,CURRENT_SESSION=null,EDIT_ID=null,ATT_STATE={},PART_STATE={},SETTINGS={},SESSION_DATES=new Set(),CONV_STATE={},CONV_OVERRIDE=false,DOC_STAFF={},DOC_ROWS=[],DOC_ROWS_MATCH=null,DOC_CAPS={},CAL_ALL=null,LIVE_MP={},LIVE_EV=[];
 let CAL_VIEW={y:new Date().getFullYear(),m:new Date().getMonth()};
@@ -1308,6 +1303,7 @@ function buildDoc(){
   var dataFmt=m.date.split("-").reverse().join("/");
   var gara=(ci.den+" VS "+teamOfficial(m.opponent));
   var titoloSoc=(ci.nome||"").replace(/\./g,"");
+  var campoStampa=m.home?(luogo+(viaLuogo?(" "+viaLuogo):"")):(viaAvv||luogo+(viaLuogo?(" "+viaLuogo):""));
   sb.from("match_players").select("*").eq("match_id",m.id).then(function(r){
     var mpM={};(r.data||[]).forEach(function(x){mpM[x.player_id]=x;});
     var elenco=PLAYERS.filter(function(p){return inRosa(p,m.date);}).sort(function(a,b){return (a.jersey_number||99)-(b.jersey_number||99);});
@@ -1325,40 +1321,48 @@ function buildDoc(){
         }
         while(DOC_ROWS.length<20)DOC_ROWS.push("");
       }
-      h+='<div class="noPrint" style="font-size:11px;font-weight:800;margin-bottom:6px;color:'+(distSaved?'#166534':'#92400e')+'">'+(distSaved?'📄 Giocatori caricati dall\'ULTIMA DISTINTA SALVATA per questa partita.':'🆕 Nessuna distinta salvata per questa partita: parto dalla rosa in ordine di numero. Compila e premi SALVA DISTINTA.')+'</div>';
+      h+='<div class="noPrint" style="font-size:11px;font-weight:800;margin-bottom:6px;color:'+(distSaved?'#166534':'#92400e')+'">'+(distSaved?'📄 Giocatori e CAP/V.CAP caricati dall\'ULTIMA DISTINTA SALVATA.':'🆕 Nessuna distinta salvata: parto dalla rosa in ordine di numero. Compila e premi SALVA DISTINTA.')+'</div>';
       var cnt={};DOC_ROWS.forEach(function(id){if(id){cnt[id]=(cnt[id]||0)+1;}});
-      var scnt={};Object.keys(DOC_STAFF).forEach(function(rl){var id=DOC_STAFF[rl];if(id){scnt[id]=(scnt[id]||0)+1;}});
       var esclusi=elenco.filter(function(p){return DOC_ROWS.indexOf(p.id)===-1;});
       var opts='<option value="">—</option>'+elenco.map(function(p){return '<option value="'+p.id+'">'+p.last_name+' '+p.first_name+'</option>';}).join("");
       h+='<div class="docWrap">';
-      h+='<div class="docTop"><img class="dlogo" src="'+LOGO_FIGC+'" alt="FIGC"><img class="dlogo" src="'+LOGO_LND+'" alt="LND"><div class="docSocName">'+ci.nome+'</div><img class="dlogo dlogo-round" src="'+logo+'" alt="logo"></div>';
-      h+='<div class="docContacts">'+ci.addr+' – Tel. '+ci.tel+' · '+ci.mail+' - PEC: '+ci.pec+' · '+ci.piva+' - MATRICOLA FIGC '+ci.matricola+' - C.O.N.I. n° '+ci.coni+'</div>';
-      h+='<div class="docBarGrey">DISTINTA GIOCATORI</div>';
-      h+='<div class="docBarGrey small">INCONTRO di '+m.competition+'</div>';
-      h+='<div class="docMatchTitle">'+gara+'</div>';
-      h+='<div class="docMetaRow"><span class="lbl">VALEVOLE PER:</span><span class="val">'+m.competition+' '+(m.category||"Under 14")+'</span><span class="lbl">DATA:</span><span class="val">'+dataFmt+'</span><span class="lbl">ORARIO:</span><span class="val">'+(m.time?fmtTime(m.time):"")+'</span></div>';
-      h+='<div class="docMetaRow"><span class="lbl">CAMPO:</span><span class="val">'+(m.home?(luogo+(viaLuogo?(" "+viaLuogo):"")):(viaAvv||luogo+(viaLuogo?(" "+viaLuogo):"")))+'</span><span class="lbl">ARBITRO:</span><span class="val">'+(m.referee||"")+'</span></div>';
-      h+='<div class="docScroll"><table class="docGrid"><tr><th style="width:6%">N°</th><th>COGNOME e NOME</th><th style="width:11%">CAP/V.CAP</th><th class="col-matr" style="width:13%">MATRICOLA</th><th style="width:14%">DATA NASCITA</th><th class="col-tess" style="width:14%">TESSERA/DOC.</th></tr>';
+      h+='<div class="distSpacer"></div>';
+      h+='<div class="distBar">DISTINTA GIOCATORI</div>';
+      h+='<div class="distBarLight">INCONTRO di '+m.competition+'</div>';
+      h+='<div class="distBarLight bold">'+gara+'</div>';
+      h+='<div class="distSpacer"></div>';
+      h+='<div class="docMetaRow"><span class="lbl">VALEVOLE PER:</span><span class="val">'+(m.competition||"Campionato")+' '+(m.category||"Under 14")+'</span></div>';
+      h+='<div class="docMetaRow"><span class="lbl">DATA:</span><span class="val">'+dataFmt+'</span><span class="lbl">ORARIO:</span><span class="val">'+(m.time?fmtTime(m.time):"")+'</span><span class="lbl">CAMPO:</span><span class="val">'+campoStampa+'</span></div>';
+      h+='<div class="distSpacer"></div>';
+      h+='<div class="docScroll"><table class="docGrid">';
+      h+='<tr><th rowspan="3" style="width:6%">N°</th><th rowspan="3">COGNOME e NOME</th><th style="width:11%">CAP</th><th rowspan="3" class="col-matr" style="width:13%">MATRICOLA</th><th style="width:14%">DATA</th><th class="col-tess" style="width:15%">TESSERA F.I.G.C.</th></tr>';
+      h+='<tr><th>---</th><th>DI</th><th class="col-tess">o</th></tr>';
+      h+='<tr><th>V.CAP</th><th>NASCITA</th><th class="col-tess">DOCUMENTO</th></tr>';
       for(var i=0;i<20;i++){
         var pid=DOC_ROWS[i];
         var p=elenco.find(function(x){return x.id===pid;});
         var dup=pid&&cnt[pid]>1;
         var capVal=pid?(DOC_CAPS[pid]||""):"";
-        h+='<tr'+(dup?' style="background:#fee2e2"':'')+'><td>'+(i+1)+'</td><td><select onchange="setDocRow('+i+',this.value)">'+opts.replace('value="'+pid+'"','value="'+pid+'" selected')+'</select>'+(dup?' <b style="color:#991b1b">⚠</b>':'')+'</td><td>'+(pid?'<input class="capIn" value="'+capVal+'" onchange="setDocCap(\''+pid+'\',this.value)" placeholder="Cap / V.Cap">':'')+'</td><td class="col-matr">'+(p?(p.figc_id||""):"")+'</td><td>'+(p?birthFmt(p.birth_date):"")+'</td><td class="col-tess">'+(p?(p.card_number||""):"")+'</td></tr>';
+        h+='<tr'+(dup?' style="background:#fee2e2"':'')+'><td>'+(i+1)+'</td><td><select onchange="setDocRow('+i+',this.value)">'+opts.replace('value="'+pid+'"','value="'+pid+'" selected')+'</select>'+(dup?' <b style="color:#991b1b">⚠</b>':'')+'</td><td>'+(pid?'<input class="capIn" value="'+capVal+'" onchange="setDocCap(\''+pid+'\',this.value)">':'')+'</td><td class="col-matr">'+(p?(p.figc_id||""):"")+'</td><td>'+(p?birthFmt(p.birth_date):"")+'</td><td class="col-tess">'+(p?(p.card_number||""):"")+'</td></tr>';
       }
       h+='</table></div>';
-      h+='<div class="docScroll"><table class="docGrid"><tr><th style="width:34%">RUOLO STAFF</th><th>NOME</th><th style="width:14%">TESS. FIGC</th><th style="width:16%">DOCUMENTO N.</th></tr>';
+      h+='<div class="distSpacer"></div>';
+      h+='<div class="docScroll"><table class="docGrid">';
       RUOLI_STAFF.forEach(function(rl){
         var sel=DOC_STAFF[rl]||((STAFF.find(function(x){return (x.role||"").toUpperCase()===rl;})||{}).id)||"";
-        var dupS=sel&&scnt[sel]>1;
-        h+='<tr'+(dupS?' style="background:#fee2e2"':'')+'><td class="rl">'+rl+'</td><td><select onchange="setDocStaff(\''+rl.replace(/'/g,"\\'")+'\',this.value)"><option value="">— scegli —</option>'+STAFF.map(function(s){return '<option value="'+s.id+'"'+(sel===s.id?" selected":"")+'>'+s.full_name+'</option>';}).join("")+'</select></td><td>'+staffField(sel,"figc_id")+'</td><td>'+staffField(sel,"doc_id")+'</td></tr>';
+        var labs=STAFF_LAB[rl]||STAFF_LAB.DEFAULT;
+        var sid=sel||"";
+        h+='<tr><td class="rl" rowspan="2" style="width:32%">'+rl+'</td><td rowspan="2"><select onchange="setDocStaff(\''+rl.replace(/'/g,"\\'")+'\',this.value)"><option value="">— scegli —</option>'+STAFF.map(function(s){return '<option value="'+s.id+'"'+(sel===s.id?" selected":"")+'>'+s.full_name+'</option>';}).join("")+'</select></td><td class="lb" style="width:16%">'+labs[0]+'</td><td style="width:18%">'+staffField(sid,"figc_id")+'</td></tr>';
+        h+='<tr><td class="lb">'+labs[1]+'</td><td>'+staffField(sid,"doc_id")+'</td></tr>';
       });
       h+='</table></div>';
-      h+='<div class="docBtns noPrint"><button class="btn ok" onclick="saveDist()">💾 SALVA DISTINTA (dati + giocatori + staff)</button></div>';
-      h+='<div class="docNotes">Il sottoscritto Dirigente accompagnatore ufficiale dichiara che il presente elenco è redatto in ottemperanza a quanto stabilito dagli artt. 61 e 66 delle N.O.I.F.</div>';
-      h+='<div class="docSignRow"><div>L\'ARBITRO<br><br></div><div>IL DIRIGENTE ACCOMPAGNATORE UFFICIALE<br><br></div></div>';
+      h+='<div class="distSpacer"></div>';
+      h+='<div class="distDecl">Il sottoscritto Dirigente accompagnatore ufficiale dichiara che il presente elenco è redatto in ottemperanza a quanto stabilito dagli artt. 61 e 66 delle N.O.I.F.</div>';
+      h+='<div class="distSpacer"></div>';
+      h+='<div class="distSign"><div>L\'ARBITRO</div><div>IL DIRIGENTE ACCOMPAGNATORE UFFICIALE</div></div>';
       h+='</div>';
-      h+='<div class="noPrint" style="margin-top:14px;border:2px dashed #f59e0b;border-radius:12px;padding:10px;background:#fffbeb">';
+      h+='<div class="docBtns noPrint"><button class="btn ok" onclick="saveDist()">💾 SALVA DISTINTA (dati + giocatori + staff)</button></div>';
+      h+='<div class="noPrint" style="margin-top:10px;border:2px dashed #f59e0b;border-radius:12px;padding:10px;background:#fffbeb">';
       h+='<b style="color:#92400e">🔎 CONTROLLO (non stampato):</b> ';
       h+='<div style="font-size:12px;margin-top:6px">In distinta: <b>'+DOC_ROWS.filter(function(x){return x;}).length+'</b> su 20 posti. ';
       var dupN=Object.keys(cnt).filter(function(k){return cnt[k]>1;}).length;
@@ -1371,7 +1375,7 @@ function buildDoc(){
         CONV_STATE={};
         elenco.forEach(function(p){var x=mpM[p.id];CONV_STATE[p.id]={conv:x?x.convocated:true,note:x?(x.conv_note||""):""};});
       }
-      var indirizzo=m.home?(ci.addr):(viaAvv||ci.addr);
+      var indirizzo=campoStampa;
       var totRighe=Math.max(26,elenco.length);
       h+='<div class="docWrap convWrap">';
       h+='<div class="convHead"><div class="logoBox"><img src="'+logo+'" alt="logo"><div class="aut">AUTOINGROS</div></div><div class="titleBox"><span>'+titoloSoc+'</span></div></div>';
