@@ -185,7 +185,7 @@ async function loadSettingsRow(){
   if(SETTINGS.live)LIVE=SETTINGS.live;
 }
 async function persistSettings(){await sb.from("settings").upsert({club_id:CLUB_ID,data:SETTINGS});}
-function populateLuoghi(){const L=SETTINGS.luoghi||[];["attPlace","pmPlace","setDefault","lvPlace","docPlace"].forEach(function(id){const e=$(id);if(e){e.innerHTML=L.map(function(x){return "<option>"+x+"</option>";}).join("");if(SETTINGS.luogo_default)e.value=SETTINGS.luogo_default;}});
+function populateLuoghi(){const L=SETTINGS.luoghi||[];["attPlace","pmPlace","setDefault","lvPlace"].forEach(function(id){const e=$(id);if(e){e.innerHTML=L.map(function(x){return "<option>"+x+"</option>";}).join("");if(SETTINGS.luogo_default)e.value=SETTINGS.luogo_default;}});
   const ll=$("luoghiList");if(ll)ll.innerHTML=L.map(function(x){return '<span class="vb blu">'+x+' <b style="cursor:pointer" onclick="removeLuogo(\''+x+'\')">✕</b></span>';}).join(" ");}
 window.addLuogo=function(){const v=$("setLuogo").value.trim();if(!v)return;SETTINGS.luoghi.push(v);$("setLuogo").value="";populateLuoghi();};
 window.removeLuogo=function(x){SETTINGS.luoghi=SETTINGS.luoghi.filter(function(y){return y!==x;});populateLuoghi();};
@@ -736,7 +736,6 @@ function renderPitch(){
   const inIds=inCampo.map(function(p){return p.id;});
   const panchina=base.filter(function(p){return inIds.indexOf(p.id)===-1&&!isExpelled(p.id);});
   const espulsi=base.filter(function(p){return isExpelled(p.id);});
-  // posizioni default a righe (porta in alto)
   const rowsDef=[];
   if(inCampo.length){
     rowsDef.push([inCampo[0]]);
@@ -748,12 +747,12 @@ function renderPitch(){
       defPos[p.id]={x:50+(c-(rw.length-1)/2)*17, y:(r===0?8:20+(r-1)*24)};
     });
   });
-  const cardHtml=function(p,cls,drag,pos){
+  const cardHtml=function(p,cls,drag,pos,mini){
     const g=golCountFor(p.id);
     const y=yellowCountFor(p.id);
     const acts=actsFor(p.id);
     const style=drag?('style="left:'+pos.x+'%;top:'+pos.y+'%"'):"";
-    return '<div class="futcard '+cls+(drag?" drag":"")+'" data-pid="'+p.id+'" '+style+' '+(drag?"":'onclick="openPlayerSheet(\''+p.id+'\')"')+'>'+
+    return '<div class="futcard '+cls+(mini?" mini":"")+(drag?" drag":"")+'" data-pid="'+p.id+'" '+style+' '+(drag?"":'onclick="openPlayerSheet(\''+p.id+'\')"')+'>'+
       '<img class="crest" src="'+clubLogo()+'" alt="">'+
       (g>0?'<span class="gols">'+g+'</span>':'')+(y>0?'<span class="yell">'+y+'</span>':'')+
       '<span class="num">'+(displayNum(p)||"-")+'</span><span class="nm">'+p.last_name+'</span>'+
@@ -763,13 +762,13 @@ function renderPitch(){
   inCampo.forEach(function(p){
     const pos=(LIVE.positions&&LIVE.positions[p.id])||defPos[p.id]||{x:50,y:50};
     const cls=(isGk(p)?"c-grigio":"c-blu");
-    area+=cardHtml(p,cls,true,pos);
+    area+=cardHtml(p,cls,true,pos,false);
   });
   area+='</div>';
   let stand='<div class="stand">';for(let i=0;i<26;i++)stand+='<i></i>';stand+='</div>';
   lp.innerHTML=stand+area;
   lp.querySelectorAll(".futcard.drag").forEach(function(el){attachDrag(el,el.dataset.pid);});
-  if(lb)lb.innerHTML=(panchina.length?'<div class="benchGrid">'+panchina.map(function(p){return cardHtml(p,(isGk(p)?"c-rosso":"c-giallo")+(subOutIds.indexOf(p.id)!==-1?" out":""),false,null);}).join("")+'</div>':'<div style="color:#94a3b8;font-size:11px;text-align:center;padding:6px">Nessuno in panchina</div>')+
+  if(lb)lb.innerHTML=(panchina.length?'<div class="benchGrid">'+panchina.map(function(p){return cardHtml(p,(isGk(p)?"c-rosso":"c-giallo")+(subOutIds.indexOf(p.id)!==-1?" out":""),false,null,true);}).join("")+'</div>':'<div style="color:#94a3b8;font-size:11px;text-align:center;padding:6px">Nessuno in panchina</div>')+
     (espulsi.length?'<div style="color:#fca5a5;font-size:11px;font-weight:800;margin-top:8px;text-align:center">ESPULSI: '+espulsi.map(function(p){return "#"+(displayNum(p)||"-")+" "+p.last_name;}).join(", ")+' (fuori gioco)</div>':'');
 }
 function isGk(p){const n=displayNum(p);return n===1||n===12;}
@@ -1123,14 +1122,43 @@ window.docSyncTime=function(which){
   if(which==="start"&&tIn.value){tRit.value=minusMinuti(tIn.value,75);}
   if(which==="rit"&&tRit.value){tIn.value=plusMinuti(tRit.value,75);}
 };
+function placeValue(){
+  const sel=$("docPlace");if(!sel)return "";
+  if(sel.value==="__altro"){return ($("docPlaceFree").value.trim()||"");}
+  return sel.value;
+}
+function setPlaceSelect(v){
+  const sel=$("docPlace");if(!sel)return;
+  const vals=Array.from(sel.options).map(function(o){return o.value;});
+  const free=$("docPlaceFree");
+  if(vals.indexOf(v)!==-1){sel.value=v;if(free)free.classList.add("hidden");}
+  else{sel.value="__altro";if(free){free.value=v;free.classList.remove("hidden");}}
+}
+window.docPlaceChange=function(){
+  const sel=$("docPlace");const free=$("docPlaceFree");if(!sel||!free)return;
+  if(sel.value==="__altro"){free.classList.remove("hidden");}
+  else{free.classList.add("hidden");}
+};
+window.docOppChange=function(){
+  const homeEl=$("docHome");if(!homeEl)return;
+  const home=homeEl.value==="true";
+  const t=teamByName($("docOpp").value);
+  if(!home&&t){setPlaceSelect(t.short_name);}
+};
+window.docHomeChange=function(){
+  const home=$("docHome").value==="true";
+  if(home){setPlaceSelect(SETTINGS.luogo_default||(SETTINGS.luoghi&&SETTINGS.luoghi[0])||"");}
+  else{const t=teamByName($("docOpp").value);if(t)setPlaceSelect(t.short_name);}
+};
 async function updateMatchMeta(){
   if(!CUR_DOC_MATCH)return;
   let opp=$("docOppFree").value.trim();if(!opp)opp=$("docOpp").value;
   await sb.from("matches").update({
     opponent:opp||CUR_DOC_MATCH.opponent,
+    home:$("docHome").value==="true",
     date:$("docDate").value,
     time:$("docTime").value||null,
-    place:$("docPlace").value,
+    place:placeValue()||CUR_DOC_MATCH.place,
     competition:$("docComp").value,
     category:$("docCat").value.trim()||"Under 14",
     referee:$("docRef").value.trim()
@@ -1219,14 +1247,20 @@ window.renderDoc=function(){
 };
 function docEditPanel(m,ritrovo,luogo){
   const isConv=(DOC_MODE==="conv");
+  const luoghi=SETTINGS.luoghi||[];
+  const isOtherPlace=luogo&&luoghi.indexOf(luogo)===-1&&!teamByName(luogo);
+  const placeOpts=luoghi.map(function(x){return '<option value="'+x+'"'+(x===luogo?" selected":"")+'>'+x+'</option>';}).join("")+
+    TEAMS.map(function(t){const addr=(t.address||"")+(t.city?(" – "+t.city):"");return '<option value="'+t.short_name+'"'+(t.short_name===luogo?" selected":"")+'>'+t.short_name+(addr?(" — "+addr):"")+'</option>';}).join("")+
+    '<option value="__altro"'+(isOtherPlace?" selected":"")+'>Altro luogo…</option>';
   return '<div class="noPrint" style="border:2px dashed #1d4ed8;border-radius:12px;padding:10px;margin-bottom:12px;background:#f8fafc">'+
     '<b style="color:#1e3a8a">✏️ Dati documento — si salvano TUTTI insieme con il pulsante SALVA in fondo al foglio</b>'+
-    '<div class="row"><div><label>Avversario</label><select id="docOpp">'+TEAMS.map(function(t){return '<option'+(t.short_name===m.opponent?" selected":"")+'>'+t.short_name+'</option>';}).join("")+'</select></div><div><label>O altro</label><input id="docOppFree" placeholder="scrivi…"></div></div>'+
-    '<div class="row"><div><label>Data</label><input type="date" id="docDate" value="'+m.date+'"></div><div><label>Luogo</label><select id="docPlace">'+(SETTINGS.luoghi||[]).map(function(x){return '<option'+(x===luogo?" selected":"")+'>'+x+'</option>';}).join("")+'</select></div></div>'+
-    '<div class="row"><div><label style="'+(isConv?"":"font-weight:800;color:#1e3a8a")+'">Orario inizio</label><input type="time" id="docTime" value="'+(m.time||"")+'" onchange="docSyncTime(\'start\')"></div><div><label style="'+(isConv?"font-weight:800;color:#c8102e":"")+'">Orario ritrovo (−1h15)</label><input type="time" id="docRitrovo" value="'+ritrovo+'" onchange="docSyncTime(\'rit\')"></div></div>'+
-    '<div class="row"><div><label>Competizione</label><select id="docComp"><option'+(m.competition==="Campionato"?" selected":"")+'>Campionato</option><option'+(m.competition==="Coppa"?" selected":"")+'>Coppa</option><option'+(m.competition==="Amichevole"?" selected":"")+'>Amichevole</option><option'+(m.competition==="Torneo"?" selected":"")+'>Torneo</option></select></div><div><label>Categoria</label><input id="docCat" value="'+(m.category||"Under 14")+'"></div></div>'+
-    '<label>Arbitro</label><input id="docRef" value="'+(m.referee||"")+'" placeholder="nome arbitro">'+
-    '<label>🕘 Storico '+(isConv?"convocazioni":"distinte")+' (carica una versione vecchia nel foglio)</label><div class="row"><select id="docHistSel"></select><button class="btn sec" style="margin:0" onclick="loadDocHistory()">Carica</button></div></div>';
+    '<div class="row"><div><label>Campo</label><select id="docHome" onchange="docHomeChange()"><option value="true"'+(m.home?" selected":"")+'>🏠 Casa</option><option value="false"'+(!m.home?" selected":"")+'>🚌 Trasferta</option></select></div><div><label>Avversario (società registrate)</label><select id="docOpp" onchange="docOppChange()">'+TEAMS.map(function(t){return '<option'+(t.short_name===m.opponent?" selected":"")+'>'+t.short_name+'</option>';}).join("")+'</select></div></div>'+
+    '<div class="row"><div><label>O altro avversario (sovrascrive)</label><input id="docOppFree" placeholder="scrivi se non in elenco"></div><div><label>Luogo / campo</label><select id="docPlace" onchange="docPlaceChange()">'+placeOpts+'</select></div></div>'+
+    '<div class="row"><div><label>Altro luogo (se "Altro luogo…")</label><input id="docPlaceFree" class="'+(isOtherPlace?"":"hidden")+'" value="'+(isOtherPlace?luogo:"")+'"></div><div><label>Arbitro (opzionale)</label><input id="docRef" value="'+(m.referee||"")+'" placeholder="non obbligatorio"></div></div>'+
+    '<div class="row"><div><label>Data</label><input type="date" id="docDate" value="'+m.date+'"></div><div><label style="'+(isConv?"font-weight:800;color:#c8102e":"")+'">Orario inizio</label><input type="time" id="docTime" value="'+(m.time||"")+'" onchange="docSyncTime(\'start\')"></div></div>'+
+    '<div class="row"><div><label style="'+(isConv?"font-weight:800;color:#c8102e":"")+'">Orario ritrovo (−1h15)</label><input type="time" id="docRitrovo" value="'+ritrovo+'" onchange="docSyncTime(\'rit\')"></div><div><label>Competizione</label><select id="docComp"><option'+(m.competition==="Campionato"?" selected":"")+'>Campionato</option><option'+(m.competition==="Coppa"?" selected":"")+'>Coppa</option><option'+(m.competition==="Amichevole"?" selected":"")+'>Amichevole</option><option'+(m.competition==="Torneo"?" selected":"")+'>Torneo</option></select></div></div>'+
+    '<div class="row"><div><label>Categoria</label><input id="docCat" value="'+(m.category||"Under 14")+'"></div><div><label>🕘 Storico</label><select id="docHistSel"></select></div></div>'+
+    '<button class="btn sec" onclick="loadDocHistory()">Carica versione storica</button></div>';
 }
 function buildDoc(){
   var m=CUR_DOC_MATCH,out=$("docOut");if(!m||!out)return;
@@ -1266,7 +1300,7 @@ function buildDoc(){
       h+='<div class="docBarGrey small">INCONTRO di '+m.competition+'</div>';
       h+='<div class="docMatchTitle">'+gara+'</div>';
       h+='<div class="docMetaRow"><span class="lbl">VALEVOLE PER:</span><span class="val">'+m.competition+' '+(m.category||"Under 14")+'</span><span class="lbl">DATA:</span><span class="val">'+dataFmt+'</span><span class="lbl">ORARIO:</span><span class="val">'+(m.time?fmtTime(m.time):"")+'</span></div>';
-      h+='<div class="docMetaRow"><span class="lbl">CAMPO:</span><span class="val">'+luogo+(viaLuogo?(" "+viaLuogo):"")+'</span><span class="lbl">ARBITRO:</span><span class="val">'+(m.referee||"")+'</span></div>';
+      h+='<div class="docMetaRow"><span class="lbl">CAMPO:</span><span class="val">'+(m.home?(luogo+(viaLuogo?(" "+viaLuogo):"")):(viaAvv||luogo+(viaLuogo?(" "+viaLuogo):"")))+'</span><span class="lbl">ARBITRO:</span><span class="val">'+(m.referee||"")+'</span></div>';
       h+='<div class="docScroll"><table class="docGrid"><tr><th style="width:8%">N°</th><th>COGNOME e NOME</th><th class="col-cap" style="width:10%">CAP/V.CAP</th><th class="col-matr" style="width:14%">MATRICOLA</th><th style="width:15%">DATA NASCITA</th><th class="col-tess" style="width:15%">TESSERA/DOC.</th></tr>';
       for(var i=0;i<20;i++){
         var pid=DOC_ROWS[i];
@@ -1306,7 +1340,7 @@ function buildDoc(){
       h+='<div class="docMetaRow"><span class="lbl">PARTITA</span><span class="val" style="font-weight:800;text-align:center">'+gara+'</span></div>';
       h+='<div class="docMetaRow"><span class="lbl">VALEVOLE PER</span><span class="val">'+m.competition+'</span></div>';
       h+='<div class="docMetaRow"><span class="lbl">DATA</span><span class="val">'+dataFmt+'</span><span class="lbl">ORARIO RITROVO</span><span class="val" style="font-weight:800">'+ritrovo+'</span></div>';
-      h+='<div class="docMetaRow"><span class="lbl">INDIRIZZO</span><span class="val">'+(m.home?(luogo+(viaLuogo?(" "+viaLuogo):"")):(viaAvv||luogo))+'</span></div>';
+      h+='<div class="docMetaRow"><span class="lbl">INDIRIZZO</span><span class="val">'+(m.home?(luogo+(viaLuogo?(" "+viaLuogo):"")):(viaAvv||luogo+(viaLuogo?(" "+viaLuogo):"")))+'</span></div>';
       h+='<div class="docScroll"><table class="docGrid"><tr><th style="width:8%">N°</th><th style="width:26%">COGNOME</th><th style="width:26%">NOME</th><th style="width:18%">CONVOCATO</th><th style="width:22%">MOTIVAZIONE/NOTE</th></tr>';
       elenco.forEach(function(p){var s=CONV_STATE[p.id]||{conv:true,note:""};
         h+='<tr><td>'+(p.jersey_number||"")+'</td><td>'+p.last_name+'</td><td>'+p.first_name+'</td>'+
