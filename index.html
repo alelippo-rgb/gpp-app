@@ -5,140 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Gestionale Borgaro Autoingros</title>
 <style>
-.absenceReasonBox{
-  width:100%;
-  margin-top:4px;
-  padding:4px;
-  background:#fef2f2;
-  border:1px dashed #fca5a5;
-  border-radius:6px;
-}
-.absenceReasonBox label{
-  display:block;
-  font-size:8px;
-  font-weight:800;
-  color:#991b1b;
-  text-transform:uppercase;
-  margin-bottom:2px;
-  text-align:center;
-}
-/* ===== NUOVO STILE OUTER CARD (CORONA + CONTENUTO) ===== */
-.outerCardWrap{
-  position:relative;
-  width:100%;
-  max-width:170px; /* Leggermente più largo per stare comodi */
-  margin:0 auto;
-  background:#fff;
-  border:1px solid #e2e8f0;
-  border-radius:16px;
-  padding:15px 10px 10px; /* Spazio extra sopra per la corona */
-  box-shadow:0 4px 12px rgba(0,0,0,.08);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:8px;
-  transition:transform .2s ease;
-}
-.outerCardWrap:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.12)}
-
-/* LA CORONA GRANDE IN ALTO */
-.bigCrown{
-  position:absolute;
-  top:-12px; /* Esce leggermente fuori dal bordo superiore */
-  left:50%;
-  transform:translateX(-50%);
-  font-size:28px; /* Dimensione importante */
-  z-index:10;
-  filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));
-  line-height:1;
-}
-.goldCrown{color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,.8)}
-.silverCrown{color:#c0c0c0;text-shadow:0 0 10px rgba(192,192,192,.8)}
-.redCrown{color:#ef4444;text-shadow:0 0 10px rgba(239,68,68,.6)}
-
-/* LA CARD FUT INTERNA (Quella colorata classica) */
-.innerFutCard{
-  width:100%;
-  aspect-ratio:3/4;
-  border-radius:12px;
-  overflow:hidden;
-  position:relative;
-  cursor:pointer;
-  box-shadow:inset 0 0 0 2px rgba(255,255,255,.4), 0 4px 8px rgba(0,0,0,.15);
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between;
-  padding:8px 4px;
-  text-align:center;
-  color:#fff;
-  user-select:none;
-}
-/* Gradienti specifici per la card interna */
-.innerFutCard.gold{background:linear-gradient(160deg,#fef08a 0%,#eab308 40%,#a16207 100%);color:#422006}
-.innerFutCard.silver{background:linear-gradient(160deg,#f1f5f9 0%,#cbd5e1 40%,#64748b 100%);color:#1e293b}
-.innerFutCard.red{background:linear-gradient(160deg,#fecaca 0%,#ef4444 40%,#7f1d1d 100%);color:#fff}
-
-.fcHeader{display:flex;justify-content:space-between;align-items:flex-start;width:100%;padding:0 4px;z-index:2}
-.fcLogo{width:20px;height:20px;object-fit:contain;opacity:.9;filter:drop-shadow(0 1px 2px rgba(0,0,0,.2))}
-.fcNum{font-size:22px;font-weight:900;line-height:.9;text-shadow:0 2px 4px rgba(0,0,0,.2)}
-
-.fcBody{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;z-index:2}
-.fcPhoto{
-  width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.3);
-  border:2px solid rgba(255,255,255,.6);overflow:hidden;
-  display:flex;align-items:center;justify-content:center;
-  font-size:18px;font-weight:900;color:inherit;
-}
-.fcPhoto img{width:100%;height:100%;object-fit:cover}
-.fcName{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90%;text-shadow:0 1px 2px rgba(0,0,0,.3)}
-.fcRoleTag{font-size:8px;font-weight:800;padding:2px 6px;border-radius:4px;background:rgba(0,0,0,.2);backdrop-filter:blur(2px);border:1px solid rgba(255,255,255,.3);text-transform:uppercase}
-
-/* GRIGLIA STATISTICHE REALI SOTTO LA CARD */
-.statMiniGrid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:4px;
-  width:100%;
-  background:#f8fafc;
-  border:1px solid #e2e8f0;
-  border-radius:8px;
-  padding:6px;
-}
-.smItem{text-align:center;display:flex;flex-direction:column;gap:2px}
-.smVal{font-size:14px;font-weight:900;color:#1e293b;line-height:1}
-.smLbl{font-size:7px;font-weight:700;text-transform:uppercase;color:#64748b;letter-spacing:.5px}
-.yellowTxt{color:#ca8a04!important}
-.redTxt{color:#dc2626!important}
-
-/* RIQUADRO AZIONI IN FONDO */
-.actionBox{
-  display:flex;
-  gap:4px;
-  width:100%;
-  margin-top:4px;
-}
-.abBtn{
-  flex:1;
-  padding:6px 2px;
-  border:none;
-  border-radius:6px;
-  font-size:9px;
-  font-weight:800;
-  cursor:pointer;
-  background:#fff;
-  color:#475569;
-  box-shadow:0 1px 3px rgba(0,0,0,.1);
-  border:1px solid #cbd5e1;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:2px;
-  transition:all .2s;
-}
-.abBtn.active{background:#16a34a;color:#fff;border-color:#15803d}
-.abBtn.orange.active{background:#d97706;color:#fff;border-color:#b45309}
-.abBtn.blue{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
-.abBtn:hover{transform:scale(1.05)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{font-family:Arial,Helvetica,sans-serif;background:#eef2f7;color:#0f172a;overflow-x:hidden}
@@ -289,94 +155,142 @@ nav button.on{color:#1e3a8a}
   gap:12px;
   padding:10px 0;
 }
-.superCardWrap{
+
+/* NUOVO STILE OUTER CARD (CORONA + CONTENUTO) */
+.outerCardWrap{
+  position:relative;
   width:100%;
-  max-width:160px; 
+  max-width:170px; /* Leggermente più largo per stare comodi */
   margin:0 auto;
+  background:#fff;
+  border:1px solid #e2e8f0;
+  border-radius:16px;
+  padding:15px 10px 10px; /* Spazio extra sopra per la corona */
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
   display:flex;
   flex-direction:column;
   align-items:center;
   gap:8px;
+  transition:transform .2s ease;
 }
-.scCard{
-  position:relative;
+.outerCardWrap:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.12)}
+
+/* LA CORONA GRANDE IN ALTO */
+.bigCrown{
+  position:absolute;
+  top:-12px; /* Esce leggermente fuori dal bordo superiore */
+  left:50%;
+  transform:translateX(-50%);
+  font-size:28px; /* Dimensione importante */
+  z-index:10;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));
+  line-height:1;
+}
+.goldCrown{color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,.8)}
+.silverCrown{color:#c0c0c0;text-shadow:0 0 10px rgba(192,192,192,.8)}
+.redCrown{color:#ef4444;text-shadow:0 0 10px rgba(239,68,68,.6)}
+
+/* LA CARD FUT INTERNA (Quella colorata classica) */
+.innerFutCard{
   width:100%;
-  aspect-ratio:3/4; 
-  border-radius:14px;
+  aspect-ratio:3/4;
+  border-radius:12px;
   overflow:hidden;
+  position:relative;
   cursor:pointer;
-  box-shadow:0 6px 15px rgba(0,0,0,.2);
-  transition:transform .2s ease, box-shadow .2s ease;
-  background:#ddd;
-  z-index:1;
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.4), 0 4px 8px rgba(0,0,0,.15);
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  padding:8px 4px;
+  text-align:center;
+  color:#fff;
+  user-select:none;
 }
-.scCard:hover{transform:translateY(-4px);box-shadow:0 10px 20px rgba(0,0,0,.3)}
-.scCard:active{transform:scale(.97)}
-.scCard::after{
-  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);
-  transform:skewX(-20deg);transition:left .5s;z-index:2;pointer-events:none;
+/* Gradienti specifici per la card interna */
+.innerFutCard.gold{background:linear-gradient(160deg,#fef08a 0%,#eab308 40%,#a16207 100%);color:#422006}
+.innerFutCard.silver{background:linear-gradient(160deg,#f1f5f9 0%,#cbd5e1 40%,#64748b 100%);color:#1e293b}
+.innerFutCard.red{background:linear-gradient(160deg,#fecaca 0%,#ef4444 40%,#7f1d1d 100%);color:#fff}
+
+.fcHeader{display:flex;justify-content:space-between;align-items:flex-start;width:100%;padding:0 4px;z-index:2}
+.fcLogo{width:20px;height:20px;object-fit:contain;opacity:.9;filter:drop-shadow(0 1px 2px rgba(0,0,0,.2))}
+.fcNum{font-size:22px;font-weight:900;line-height:.9;text-shadow:0 2px 4px rgba(0,0,0,.2)}
+
+.fcBody{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;z-index:2}
+.fcPhoto{
+  width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.3);
+  border:2px solid rgba(255,255,255,.6);overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:900;color:inherit;
 }
-.scCard:hover::after{left:100%}
-.scCard.gold{background:linear-gradient(160deg,#fef08a 0%,#eab308 40%,#a16207 100%);color:#422006;border:2px solid #fbbf24}
-.scCard.silver{background:linear-gradient(160deg,#f1f5f9 0%,#cbd5e1 40%,#64748b 100%);color:#1e293b;border:2px solid #e2e8f0}
-.scCard.red{background:linear-gradient(160deg,#fecaca 0%,#ef4444 40%,#7f1d1d 100%);color:#fff;border:2px solid #fca5a5}
-.scCard.blue{background:linear-gradient(160deg,#dbeafe 0%,#3b82f6 40%,#1e3a8a 100%);color:#fff;border:2px solid #bfdbfe}
-.scCrown{
-  position:absolute;top:4px;left:50%;transform:translateX(-50%);
-  font-size:18px;line-height:1;z-index:10;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3));
-  pointer-events:none;
+.fcPhoto img{width:100%;height:100%;object-fit:cover}
+.fcName{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90%;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.fcRoleTag{font-size:8px;font-weight:800;padding:2px 6px;border-radius:4px;background:rgba(0,0,0,.2);backdrop-filter:blur(2px);border:1px solid rgba(255,255,255,.3);text-transform:uppercase}
+
+/* GRIGLIA STATISTICHE REALI SOTTO LA CARD */
+.statMiniGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:4px;
+  width:100%;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  border-radius:8px;
+  padding:6px;
 }
-.scGoldIcon{color:#ffd700;text-shadow:0 0 5px rgba(255,215,0,.6)}
-.scSilverIcon{color:#c0c0c0;text-shadow:0 0 5px rgba(192,192,192,.6)}
-.scRedIcon{color:#ffcccc;text-shadow:0 0 5px rgba(255,255,255,.4)}
-.scHeader{
-  display:flex;justify-content:space-between;align-items:flex-start;
-  padding:12px 10px 0;width:100%;z-index:5;position:relative;height:40px;
+.smItem{text-align:center;display:flex;flex-direction:column;gap:2px}
+.smVal{font-size:14px;font-weight:900;color:#1e293b;line-height:1}
+.smLbl{font-size:7px;font-weight:700;text-transform:uppercase;color:#64748b;letter-spacing:.5px}
+.yellowTxt{color:#ca8a04!important}
+.redTxt{color:#dc2626!important}
+
+/* RIQUADRO AZIONI IN FONDO */
+.actionBox{
+  display:flex;
+  gap:4px;
+  width:100%;
+  margin-top:4px;
 }
-.scLogoSmall{width:24px;height:24px;object-fit:contain;opacity:.9;filter:drop-shadow(0 1px 2px rgba(0,0,0,.2))}
-.scNumBig{font-size:24px;font-weight:900;line-height:.9;text-shadow:0 2px 4px rgba(0,0,0,.2)}
-.scBody{
-  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  width:100%;padding:0 8px;z-index:5;position:relative;margin-top:-10px;
+.abBtn{
+  flex:1;
+  padding:6px 2px;
+  border:none;
+  border-radius:6px;
+  font-size:9px;
+  font-weight:800;
+  cursor:pointer;
+  background:#fff;
+  color:#475569;
+  box-shadow:0 1px 3px rgba(0,0,0,.1);
+  border:1px solid #cbd5e1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  transition:all .2s;
 }
-.scPhotoCircle{
-  width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.3);
-  border:2px solid rgba(255,255,255,.6);overflow:hidden;margin-bottom:4px;
-  box-shadow:0 4px 8px rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center;
-  font-size:20px;font-weight:900;color:inherit;
+.abBtn.active{background:#16a34a;color:#fff;border-color:#15803d}
+.abBtn.orange.active{background:#d97706;color:#fff;border-color:#b45309}
+.abBtn.blue{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+.abBtn:hover{transform:scale(1.05)}
+
+.absenceReasonBox{
+  width:100%;
+  margin-top:4px;
+  padding:4px;
+  background:#fef2f2;
+  border:1px dashed #fca5a5;
+  border-radius:6px;
 }
-.scPhotoCircle img{width:100%;height:100%;object-fit:cover}
-.scNameText{
-  font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;
-  text-align:center;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  text-shadow:0 1px 2px rgba(0,0,0,.3);margin-bottom:2px;
+.absenceReasonBox label{
+  display:block;
+  font-size:8px;
+  font-weight:800;
+  color:#991b1b;
+  text-transform:uppercase;
+  margin-bottom:2px;
+  text-align:center;
 }
-.scStatusTag{
-  font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;background:rgba(0,0,0,.2);
-  backdrop-filter:blur(2px);border:1px solid rgba(255,255,255,.3);text-transform:uppercase;
-}
-.scStatsFooter{
-  width:100%;padding:6px 4px;background:rgba(0,0,0,.15);backdrop-filter:blur(4px);
-  display:grid;grid-template-columns:repeat(3,1fr);gap:2px;z-index:5;
-  border-top:1px solid rgba(255,255,255,.2);
-}
-.scStatBox{text-align:center}
-.scStatValTxt{font-size:13px;font-weight:900;line-height:1}
-.scStatLblTxt{font-size:7px;font-weight:700;text-transform:uppercase;opacity:.8;letter-spacing:.5px}
-.scActionRow{
-  display:flex;gap:4px;width:100%;justify-content:center;margin-top:2px;
-}
-.scActBtn{
-  flex:1;padding:6px 2px;border:none;border-radius:6px;font-size:9px;font-weight:800;cursor:pointer;
-  background:#fff;color:#334155;box-shadow:0 2px 4px rgba(0,0,0,.1);border:1px solid #e2e8f0;
-  display:flex;flex-direction:column;align-items:center;gap:1px;transition:all .2s;
-}
-.scActBtn span{font-size:12px}
-.scActBtn.act-grp.on{background:#16a34a;color:#fff;border-color:#15803d}
-.scActBtn.act-apa.on{background:#d97706;color:#fff;border-color:#b45309}
-.scActBtn.act-note.on{background:#2563eb;color:#fff;border-color:#1d4ed8}
-.scActBtn:hover{transform:translateY(-1px)}
 </style>
 </head>
 <body>
