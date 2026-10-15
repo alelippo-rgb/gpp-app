@@ -5,6 +5,140 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Gestionale Borgaro Autoingros</title>
 <style>
+.absenceReasonBox{
+  width:100%;
+  margin-top:4px;
+  padding:4px;
+  background:#fef2f2;
+  border:1px dashed #fca5a5;
+  border-radius:6px;
+}
+.absenceReasonBox label{
+  display:block;
+  font-size:8px;
+  font-weight:800;
+  color:#991b1b;
+  text-transform:uppercase;
+  margin-bottom:2px;
+  text-align:center;
+}
+/* ===== NUOVO STILE OUTER CARD (CORONA + CONTENUTO) ===== */
+.outerCardWrap{
+  position:relative;
+  width:100%;
+  max-width:170px; /* Leggermente più largo per stare comodi */
+  margin:0 auto;
+  background:#fff;
+  border:1px solid #e2e8f0;
+  border-radius:16px;
+  padding:15px 10px 10px; /* Spazio extra sopra per la corona */
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  transition:transform .2s ease;
+}
+.outerCardWrap:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.12)}
+
+/* LA CORONA GRANDE IN ALTO */
+.bigCrown{
+  position:absolute;
+  top:-12px; /* Esce leggermente fuori dal bordo superiore */
+  left:50%;
+  transform:translateX(-50%);
+  font-size:28px; /* Dimensione importante */
+  z-index:10;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));
+  line-height:1;
+}
+.goldCrown{color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,.8)}
+.silverCrown{color:#c0c0c0;text-shadow:0 0 10px rgba(192,192,192,.8)}
+.redCrown{color:#ef4444;text-shadow:0 0 10px rgba(239,68,68,.6)}
+
+/* LA CARD FUT INTERNA (Quella colorata classica) */
+.innerFutCard{
+  width:100%;
+  aspect-ratio:3/4;
+  border-radius:12px;
+  overflow:hidden;
+  position:relative;
+  cursor:pointer;
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.4), 0 4px 8px rgba(0,0,0,.15);
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  padding:8px 4px;
+  text-align:center;
+  color:#fff;
+  user-select:none;
+}
+/* Gradienti specifici per la card interna */
+.innerFutCard.gold{background:linear-gradient(160deg,#fef08a 0%,#eab308 40%,#a16207 100%);color:#422006}
+.innerFutCard.silver{background:linear-gradient(160deg,#f1f5f9 0%,#cbd5e1 40%,#64748b 100%);color:#1e293b}
+.innerFutCard.red{background:linear-gradient(160deg,#fecaca 0%,#ef4444 40%,#7f1d1d 100%);color:#fff}
+
+.fcHeader{display:flex;justify-content:space-between;align-items:flex-start;width:100%;padding:0 4px;z-index:2}
+.fcLogo{width:20px;height:20px;object-fit:contain;opacity:.9;filter:drop-shadow(0 1px 2px rgba(0,0,0,.2))}
+.fcNum{font-size:22px;font-weight:900;line-height:.9;text-shadow:0 2px 4px rgba(0,0,0,.2)}
+
+.fcBody{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;z-index:2}
+.fcPhoto{
+  width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.3);
+  border:2px solid rgba(255,255,255,.6);overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:900;color:inherit;
+}
+.fcPhoto img{width:100%;height:100%;object-fit:cover}
+.fcName{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90%;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.fcRoleTag{font-size:8px;font-weight:800;padding:2px 6px;border-radius:4px;background:rgba(0,0,0,.2);backdrop-filter:blur(2px);border:1px solid rgba(255,255,255,.3);text-transform:uppercase}
+
+/* GRIGLIA STATISTICHE REALI SOTTO LA CARD */
+.statMiniGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:4px;
+  width:100%;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  border-radius:8px;
+  padding:6px;
+}
+.smItem{text-align:center;display:flex;flex-direction:column;gap:2px}
+.smVal{font-size:14px;font-weight:900;color:#1e293b;line-height:1}
+.smLbl{font-size:7px;font-weight:700;text-transform:uppercase;color:#64748b;letter-spacing:.5px}
+.yellowTxt{color:#ca8a04!important}
+.redTxt{color:#dc2626!important}
+
+/* RIQUADRO AZIONI IN FONDO */
+.actionBox{
+  display:flex;
+  gap:4px;
+  width:100%;
+  margin-top:4px;
+}
+.abBtn{
+  flex:1;
+  padding:6px 2px;
+  border:none;
+  border-radius:6px;
+  font-size:9px;
+  font-weight:800;
+  cursor:pointer;
+  background:#fff;
+  color:#475569;
+  box-shadow:0 1px 3px rgba(0,0,0,.1);
+  border:1px solid #cbd5e1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  transition:all .2s;
+}
+.abBtn.active{background:#16a34a;color:#fff;border-color:#15803d}
+.abBtn.orange.active{background:#d97706;color:#fff;border-color:#b45309}
+.abBtn.blue{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+.abBtn:hover{transform:scale(1.05)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{font-family:Arial,Helvetica,sans-serif;background:#eef2f7;color:#0f172a;overflow-x:hidden}
