@@ -532,57 +532,86 @@ function renderGrid(){
   const pres=ROSA_DATA.filter(function(p){return ATT_STATE[p.id]&&ATT_STATE[p.id].present;});
   const ass=ROSA_DATA.length-pres.length;
   const aparte=pres.filter(function(p){return !ATT_STATE[p.id].with_team;}).length;
+  
+  // Contatore semplificato sopra la griglia
   const ac=$("attCount");
-  if(ac)ac.textContent="✅ Presenti "+pres.length+" · ❌ Assenti "+ass+" · 🟧 A parte "+aparte;
-
-  const leg=
-    '<div class="pcLegendCompact">'+
-      '<span><i style="background:var(--pres-present)"></i> Presente</span>'+
-      '<span><i style="background:var(--pres-absent)"></i> Assente</span>'+
-      '<span><i style="background:var(--pres-group)"></i> Gruppo</span>'+
-      '<span><i style="background:var(--pres-apart)"></i> A parte</span>'+
-      '<span>⚙ Note</span>'+
-      '<span>👆 Tocca card = presente/assente</span>'+
-    '</div>';
+  if(ac)ac.innerHTML=`<div style="text-align:center;font-weight:800;color:#1e3a8a;margin-bottom:10px">✅ ${pres.length} Presenti · ❌ ${ass.length} Assenti · 🟧 ${aparte} A parte</div>`;
 
   const ag=$("attGrid");
   if(!ag)return;
 
-  ag.innerHTML=leg+ROSA_DATA.map(function(p){
+  // Generiamo le card
+  ag.innerHTML=ROSA_DATA.map(function(p){
     const s=ATT_STATE[p.id];
-
-    let statsHtml='';
+    const isPresent=s.present;
     
-    if(s.present){
-      statsHtml='<div class="statsRow">'+
-        '<button class="statBtn grp '+(s.with_team?"on":"")+'" title="Gruppo" onclick="event.stopPropagation();setTeamCard(\''+p.id+'\',true)">👥</button>'+
-        '<button class="statBtn apa '+(!s.with_team?"on":"")+'" title="A Parte" onclick="event.stopPropagation();setTeamCard(\''+p.id+'\',false)">🚧</button>'+
-        '<button class="statBtn" title="Note" onclick="event.stopPropagation();openSheet(\''+p.id+'\')">⚙</button>'+
-      '</div>';
-    } 
-    else {
-       statsHtml='<div class="statsRow"><span style="font-size:9px;color:rgba(255,255,255,.7);font-weight:800">MOTIVO SOTTO</span></div>';
-    }
+    // Determina colore card
+    let colorClass = isPresent ? "gold" : "red";
+    if(isPresent && !s.with_team) colorClass = "silver"; // Argento per chi lavora a parte
+    
+    // Calcolo Statistiche Demo (In futuro prenderai questi dati dal DB reale)
+    // Esempio: Presenze Totali Stagione, Gol Stagione, Voto Medio
+    const stats = {
+      pres: Math.floor(Math.random()*20)+1, // Placeholder
+      gol: Math.floor(Math.random()*5),     // Placeholder
+      fair: (Math.random()*2+8).toFixed(1)  // Placeholder voto 8-10
+    };
 
-    const inner=
-      '<img class="crest" src="'+clubLogo()+'" alt="">'+
-      '<span class="num">'+(p.jersey_number||"-")+'</span>'+
-      '<span class="nm">'+p.last_name+'</span>'+
-      '<span class="st">'+(s.present?"PRESENTI":"ASSENTE")+'</span>'+
-      statsHtml;
+    // HTML Interno della Card
+    const photoHtml = p.photo_url 
+      ? `<img src="${p.photo_url}" alt="${p.last_name}">` 
+      : `<span>${(p.first_name||"")[0]}${(p.last_name||"")[0]}</span>`;
 
-    let underCtrl = '';
-    if(!s.present){
-      underCtrl = '<div style="margin-top:4px;width:100%">' + motivoSel(p.id,s) + '</div>';
-    }
+    const innerHtml = `
+      <div class="scHeader">
+        <img class="scLogo" src="${clubLogo()}" alt="logo">
+        <div style="text-align:right">
+          <div class="scNum">${p.jersey_number || "-"}</div>
+          <div class="scRole">${isPresent ? (s.with_team ? "TITOLARE" : "A PARTE") : "ASSENTE"}</div>
+        </div>
+      </div>
+      
+      <div class="scBody">
+        <div class="scPhotoBox">${photoHtml}</div>
+        <div class="scName">${p.last_name}</div>
+        <div class="scStatusBadge" style="background:${isPresent?'rgba(255,255,255,.3)':'rgba(0,0,0,.3)'};color:${isPresent?'#422006':'#fff'}">
+          ${isPresent ? "PRESENTE" : "NON CONVOCATO"}
+        </div>
+      </div>
 
-    return '<div class="pcwrap">'+
-      '<div class="futcard presence '+(s.present?"on":"off")+'" onclick="tapCard(\''+p.id+'\')">'+inner+'</div>'+
-      underCtrl +
-    '</div>';
+      <div class="scStats">
+        <div class="scStatItem"><div class="scStatVal">${stats.pres}</div><div class="scStatLbl">PRES</div></div>
+        <div class="scStatItem"><div class="scStatVal">${stats.gol}</div><div class="scStatLbl">GOL</div></div>
+        <div class="scStatItem"><div class="scStatVal">${stats.fair}</div><div class="scStatLbl">FAIR</div></div>
+      </div>
+    `;
+
+    // Pulsanti Azione (Fuori dalla card grafica, ma legati logicamente)
+    // Sono grandi, facili da toccare e spiegano chiaramente l'azione
+    const actionsHtml = `
+      <div class="scActions">
+        <button class="scBtn ${isPresent && s.with_team ? 'active-grp' : ''}" onclick="event.stopPropagation();setTeamCard('${p.id}',true)">
+          <span>👥</span>GRUPPO
+        </button>
+        <button class="scBtn ${isPresent && !s.with_team ? 'active-apa' : ''}" onclick="event.stopPropagation();setTeamCard('${p.id}',false)">
+          <span>🚧</span>A PARTE
+        </button>
+        <button class="scBtn active-note" onclick="event.stopPropagation();openSheet('${p.id}')">
+          <span>⚙️</span>NOTE
+        </button>
+      </div>
+    `;
+
+    return `
+      <div class="superCardWrap">
+        <div class="scCard ${colorClass}" onclick="tapCard('${p.id}')">
+          ${innerHtml}
+        </div>
+        ${actionsHtml}
+      </div>
+    `;
   }).join("");
-}
-window.tapCard=function(id){ATT_STATE[id].present=!ATT_STATE[id].present;renderGrid();};
+}window.tapCard=function(id){ATT_STATE[id].present=!ATT_STATE[id].present;renderGrid();};
 window.setAll=function(v){ROSA_DATA.forEach(function(p){ATT_STATE[p.id].present=v;});renderGrid();};
 window.setTeamCard=function(id,v){ATT_STATE[id].with_team=v;renderGrid();};
 window.setReason=function(id,v){ATT_STATE[id].reason=v;};
