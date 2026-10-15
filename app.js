@@ -244,6 +244,11 @@ function injectLiveCss(){
   ".futcard.presence.on{background:var(--pres-present)!important;color:#fff!important}"+
   ".futcard.presence.off{background:var(--pres-absent)!important;color:#fff!important}"+
   ".futcard.presence .crest{background:var(--pres-badge-bg);border-radius:50%;padding:1px;box-shadow:0 0 0 1px var(--pres-badge-text);box-sizing:border-box}"+
+  ".futcard.presence .statsRow{position:absolute;bottom:4px;left:0;right:0;display:flex;justify-content:center;gap:4px;z-index:5}"+
+  ".futcard.presence .statBtn{width:22px;height:22px;border-radius:6px;border:none;background:rgba(0,0,0,.35);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(2px)}"+
+  ".futcard.presence .statBtn.active{background:#fff;color:#000;font-weight:900;box-shadow:0 0 4px #fff}"+
+  ".futcard.presence .statBtn.grp.on{background:#16a34a;color:#fff}"+
+  ".futcard.presence .statBtn.apa.on{background:#d97706;color:#fff}"+
   ".pcLegendCompact{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;font-size:10px;font-weight:800;color:#334155;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:6px 8px;margin-bottom:8px}"+
   ".pcLegendCompact span{display:inline-flex;align-items:center;gap:4px}"+
   ".pcLegendCompact i{width:10px;height:10px;border-radius:3px;display:inline-block;border:1px solid rgba(0,0,0,.2)}"+
@@ -314,8 +319,24 @@ async function loadSettingsRow(){
   applyPresColors();
 }
 async function persistSettings(){await sb.from("settings").upsert({club_id:CLUB_ID,data:SETTINGS});}
-function populateLuoghi(){const L=SETTINGS.luoghi||[];["attPlace","pmPlace","setDefault","lvPlace"].forEach(function(id){const e=$(id);if(e){e.innerHTML=L.map(function(x){return "<option>"+x+"</option>";}).join("");if(SETTINGS.luogo_default)e.value=SETTINGS.luogo_default;}});
-  const ll=$("luoghiList");if(ll)ll.innerHTML=L.map(function(x){return '<span class="vb blu">'+x+' <b style="cursor:pointer" onclick="removeLuogo(\''+x+'\')">✕</b></span>';}).join(" ");}
+function populateLuoghi(){
+  let L=[...(SETTINGS.luoghi||[])];
+  if(typeof TEAMS!=="undefined" && TEAMS.length){
+    TEAMS.forEach(function(t){
+      if(t.city && L.indexOf(t.city)===-1) L.push(t.city);
+      else if(t.short_name && L.indexOf(t.short_name)===-1) L.push(t.short_name);
+    });
+  }
+  ["attPlace","pmPlace","setDefault","lvPlace"].forEach(function(id){
+    const e=$(id);
+    if(e){
+      e.innerHTML=L.map(function(x){return "<option>"+x+"</option>";}).join("");
+      if(SETTINGS.luogo_default)e.value=SETTINGS.luogo_default;
+    }
+  });
+  const ll=$("luoghiList");
+  if(ll)ll.innerHTML=(SETTINGS.luoghi||[]).map(function(x){return '<span class="vb blu">'+x+' <b style="cursor:pointer" onclick="removeLuogo(\''+x+'\')">✕</b></span>';}).join(" ");
+}
 window.addLuogo=function(){const v=$("setLuogo").value.trim();if(!v)return;SETTINGS.luoghi.push(v);$("setLuogo").value="";populateLuoghi();};
 window.removeLuogo=function(x){SETTINGS.luoghi=SETTINGS.luoghi.filter(function(y){return y!==x;});populateLuoghi();};
 window.saveLuoghi=async function(){SETTINGS.luogo_default=$("setDefault").value;await persistSettings();alert("Luoghi salvati");};
@@ -354,7 +375,7 @@ window.savePersonal=async function(){
   else{SETTINGS.club=out;await persistSettings();applyBrand();populatePersonal();alert("Personalizzazione salvata!");}
 };
 
-async function loadTeams(){const r=await sb.from("teams").select("*").eq("club_id",CLUB_ID).order("short_name");TEAMS=r.data||[];renderTeamList();populateAvv();}
+async function loadTeams(){const r=await sb.from("teams").select("*").eq("club_id",CLUB_ID).order("short_name");TEAMS=r.data||[];renderTeamList();populateAvv();populateLuoghi();}
 async function loadStaff(){const r=await sb.from("staff").select("*").eq("club_id",CLUB_ID).eq("active",true).order("role");STAFF=r.data||[];renderStaffList();}
 function teamByName(n){return TEAMS.find(function(t){return t.short_name===n;});}
 function teamOfficial(n){const t=teamByName(n);return t?(t.official_name||n):n;}
@@ -530,26 +551,34 @@ function renderGrid(){
   ag.innerHTML=leg+ROSA_DATA.map(function(p){
     const s=ATT_STATE[p.id];
 
+    let statsHtml='';
+    
+    if(s.present){
+      statsHtml='<div class="statsRow">'+
+        '<button class="statBtn grp '+(s.with_team?"on":"")+'" title="Gruppo" onclick="event.stopPropagation();setTeamCard(\''+p.id+'\',true)">👥</button>'+
+        '<button class="statBtn apa '+(!s.with_team?"on":"")+'" title="A Parte" onclick="event.stopPropagation();setTeamCard(\''+p.id+'\',false)">🚧</button>'+
+        '<button class="statBtn" title="Note" onclick="event.stopPropagation();openSheet(\''+p.id+'\')">⚙</button>'+
+      '</div>';
+    } 
+    else {
+       statsHtml='<div class="statsRow"><span style="font-size:9px;color:rgba(255,255,255,.7);font-weight:800">MOTIVO SOTTO</span></div>';
+    }
+
     const inner=
       '<img class="crest" src="'+clubLogo()+'" alt="">'+
       '<span class="num">'+(p.jersey_number||"-")+'</span>'+
       '<span class="nm">'+p.last_name+'</span>'+
-      '<span class="st">'+(s.present?"PRESENTE":"ASSENTE")+'</span>';
+      '<span class="st">'+(s.present?"PRESENTI":"ASSENTE")+'</span>'+
+      statsHtml;
 
-    let ctrl=
-      '<button class="pbtn mini" title="Note e comportamento" onclick="event.stopPropagation();openSheet(\''+p.id+'\')">⚙</button>';
-
-    if(s.present){
-      ctrl+=
-        '<button class="pbtn mini '+(s.with_team?"grpOn":"")+'" title="In gruppo" onclick="event.stopPropagation();setTeamCard(\''+p.id+'\',true)">👥</button>'+
-        '<button class="pbtn mini '+(s.with_team?"":"apaOn")+'" title="A parte" onclick="event.stopPropagation();setTeamCard(\''+p.id+'\',false)">🚧</button>';
-    }else{
-      ctrl+=motivoSel(p.id,s);
+    let underCtrl = '';
+    if(!s.present){
+      underCtrl = '<div style="margin-top:4px;width:100%">' + motivoSel(p.id,s) + '</div>';
     }
 
     return '<div class="pcwrap">'+
       '<div class="futcard presence '+(s.present?"on":"off")+'" onclick="tapCard(\''+p.id+'\')">'+inner+'</div>'+
-      '<div class="pcctrl">'+ctrl+'</div>'+
+      underCtrl +
     '</div>';
   }).join("");
 }
@@ -1442,7 +1471,8 @@ window.saveDist=async function(){
   });
   let up=await sb.from("match_players").upsert(rows,{onConflict:"match_id,player_id"});
   if(up.error){
-        await sb.from("match_players").upsert(rows2,{onConflict:"match_id,player_id"});
+    const rows2=rows.map(function(x){const c={};for(const k in x){if(k!=="dist_order")c[k]=x[k];}return c;});
+    up=await sb.from("match_players").upsert(rows2,{onConflict:"match_id,player_id"});
     if(up.error){alert("Errore salvataggio distinta: "+up.error.message);return;}
   }
   const srows=Object.keys(DOC_STAFF).filter(function(k){return DOC_STAFF[k];}).map(function(k){return{match_id:CUR_DOC_MATCH.id,role:k,staff_id:DOC_STAFF[k]};});
