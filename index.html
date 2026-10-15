@@ -50,23 +50,12 @@ textarea{min-height:60px;resize:vertical}
 .pmid{flex:1;min-width:0}.pname{font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .delBtn{background:#fee2e2;color:#991b1b;border:none;border-radius:9px;width:34px;height:34px;font-size:15px;cursor:pointer;flex:0 0 34px}
 
-/* ===== CALENDARIO PICCOLO COMPATTO ===== */
-.calWrap{
-  display:grid;grid-template-columns:repeat(7,1fr);gap:2px; 
-  margin-bottom:10px;
-}
-.calDow{
-  text-align:center;font-size:10px;font-weight:900;color:#64748b;padding:2px 0; 
-}
-.calCell{
-  aspect-ratio:1/1;border:1px solid #e2e8f0;border-radius:6px;background:#fff; 
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  font-size:11px;font-weight:700;cursor:pointer;position:relative; 
-  min-height:32px; 
-}
-.calCell.empty{border:none;background:transparent;cursor:default;min-height:auto;}
-.calCell.sel{background:#1e3a8a;color:#fff;border-color:#1e3a8a;}
-.calCell.dot::after{content:"";position:absolute;bottom:2px;width:4px;height:4px;border-radius:50%;background:#16a34a;} 
+.calWrap{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:10px}
+.calDow{text-align:center;font-size:10px;font-weight:900;color:#64748b;padding:2px 0}
+.calCell{aspect-ratio:1/1;border:1px solid #e2e8f0;border-radius:6px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;font-weight:700;cursor:pointer;position:relative;min-height:32px}
+.calCell.empty{border:none;background:transparent;cursor:default;min-height:auto}
+.calCell.sel{background:#1e3a8a;color:#fff;border-color:#1e3a8a}
+.calCell.dot::after{content:"";position:absolute;bottom:2px;width:4px;height:4px;border-radius:50%;background:#16a34a}
 
 .formRow{display:flex;align-items:center;gap:6px;padding:6px;border-bottom:1px solid #f1f5f9}
 .formRow .num{width:30px;text-align:center;font-weight:900;color:#1e3a8a}
@@ -105,7 +94,6 @@ table.rep td.nome{font-weight:700}
 .liveBar{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .liveBar button{flex:1;min-width:64px;padding:10px 4px;border:none;border-radius:10px;background:rgba(255,255,255,.15);color:#fff;font-weight:800;font-size:12px;cursor:pointer}
 
-/* ===== CALENDARIO GRANDE ===== */
 .cgCard{background:linear-gradient(180deg,#ffffff,#f8fafc);border:1px solid #e2e8f0;border-radius:20px;box-shadow:0 10px 30px rgba(15,23,42,.08);padding:14px}
 .cgHead{display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .cgNav{width:42px;height:42px;border-radius:14px;border:1px solid #e2e8f0;background:#fff;color:#1e3a8a;font-size:22px;font-weight:900;cursor:pointer;box-shadow:0 2px 8px rgba(15,23,42,.08)}
@@ -148,141 +136,42 @@ nav button.on{color:#1e3a8a}
 .authWrap{max-width:380px;margin:30px auto}
 .authWrap .card h2{justify-content:center}
 
-/* ===== PREMIUM CARD LAYOUT (TOPPS CHROME STYLE) ===== */
-.cardsGrid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
-  gap:14px;
-  padding:8px 0;
-}
-
-.cardWrapCompact{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  width:100%;
-  max-width:170px;
-  margin:0 auto;
-}
-
-/* CARD PRINCIPALE COLORATA */
-.futCardPremium{
-  position:relative;
-  width:100%;
-  aspect-ratio:3/4.2; /* leggermente più alta per compattezza */
-  border-radius:14px;
-  overflow:hidden;
-  cursor:pointer;
-  box-shadow:0 6px 16px rgba(0,0,0,.18), inset 0 0 0 1px rgba(255,255,255,.25);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  padding:10px 8px 12px;
-  color:#fff;
-  user-select:none;
-  transition:transform .2s ease, box-shadow .2s ease;
-}
+.cardsGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;padding:8px 0}
+.cardWrapCompact{display:flex;flex-direction:column;gap:6px;width:100%;max-width:170px;margin:0 auto}
+.futCardPremium{position:relative;width:100%;aspect-ratio:3/4.2;border-radius:14px;overflow:hidden;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.18), inset 0 0 0 1px rgba(255,255,255,.25);display:flex;flex-direction:column;align-items:center;padding:10px 8px 12px;color:#fff;user-select:none;transition:transform .2s ease, box-shadow .2s ease}
 .futCardPremium:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.25)}
 .futCardPremium:active{transform:scale(.97)}
-
-/* Gradienti Premium */
 .futCardPremium.gold{background:linear-gradient(165deg,#fef9c3 0%,#eab308 45%,#a16207 100%);color:#422006}
 .futCardPremium.silver{background:linear-gradient(165deg,#f8fafc 0%,#cbd5e1 45%,#64748b 100%);color:#1e293b}
 .futCardPremium.red{background:linear-gradient(165deg,#fee2e2 0%,#ef4444 45%,#7f1d1d 100%);color:#fff}
-
-/* RIFLESSO ANIMATO (SHINE) */
-.shineEffect{
-  position:absolute;top:0;left:-150%;width:100%;height:100%;
-  background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,.22) 45%,transparent 80%);
-  transform:skewX(-25deg);
-  animation:premiumShine 5s infinite ease-in-out;
-  pointer-events:none;z-index:1;
-}
-@keyframes premiumShine{
-  0%{left:-150%}
-  20%{left:150%}
-  100%{left:150%}
-}
-
-/* HEADER COMPATTO */
-.fcTopRow{
-  width:100%;display:flex;justify-content:space-between;align-items:center;
-  margin-bottom:6px;z-index:2;position:relative;
-}
+.shineEffect{position:absolute;top:0;left:-150%;width:100%;height:100%;background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,.22) 45%,transparent 80%);transform:skewX(-25deg);animation:premiumShine 5s infinite ease-in-out;pointer-events:none;z-index:1}
+@keyframes premiumShine{0%{left:-150%}20%{left:150%}100%{left:150%}}
+.fcTopRow{width:100%;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;z-index:2;position:relative}
 .fcLogoMini{width:22px;height:22px;object-fit:contain;opacity:.95;filter:drop-shadow(0 1px 2px rgba(0,0,0,.2))}
 .fcNumMini{font-size:18px;font-weight:900;line-height:1;text-shadow:0 1px 3px rgba(0,0,0,.25)}
-
-/* FOTO XXL CENTRATA */
-.fcPhotoBig{
-  width:72px;height:72px;border-radius:50%;
-  background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.5);
-  overflow:hidden;margin:4px 0 6px;z-index:2;position:relative;
-  display:flex;align-items:center;justify-content:center;
-  font-size:24px;font-weight:900;color:inherit;
-  box-shadow:0 4px 10px rgba(0,0,0,.15);
-}
+.fcPhotoBig{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.5);overflow:hidden;margin:4px 0 6px;z-index:2;position:relative;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:inherit;box-shadow:0 4px 10px rgba(0,0,0,.15)}
 .fcPhotoBig img{width:100%;height:100%;object-fit:cover}
-
-/* NOME GRANDE */
-.fcNameBig{
-  font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.4px;
-  text-align:center;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  text-shadow:0 1px 2px rgba(0,0,0,.25);margin-bottom:6px;z-index:2;position:relative;
-}
-
-/* BADGE STATO */
-.statusBadge{
-  font-size:9px;font-weight:800;padding:3px 8px;border-radius:20px;
-  background:rgba(0,0,0,.2);backdrop-filter:blur(3px);border:1px solid rgba(255,255,255,.3);
-  text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;z-index:2;position:relative;
-}
+.fcNameBig{font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.4px;text-align:center;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.25);margin-bottom:6px;z-index:2;position:relative}
+.statusBadge{font-size:9px;font-weight:800;padding:3px 8px;border-radius:20px;background:rgba(0,0,0,.2);backdrop-filter:blur(3px);border:1px solid rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;z-index:2;position:relative}
 .statusBadge.present{background:rgba(22,163,74,.25);border-color:rgba(22,163,74,.5)}
 .statusBadge.apart{background:rgba(217,119,6,.25);border-color:rgba(217,119,6,.5)}
 .statusBadge.absent{background:rgba(220,38,38,.25);border-color:rgba(220,38,38,.5)}
-
-/* STATS INLINE DENTRO LA CARD */
-.statsInline{
-  width:100%;display:flex;justify-content:space-around;
-  background:rgba(0,0,0,.12);border-radius:8px;padding:5px 2px;
-  backdrop-filter:blur(2px);border:1px solid rgba(255,255,255,.15);
-  z-index:2;position:relative;margin-top:auto;
-}
+.statsInline{width:100%;display:flex;justify-content:space-around;background:rgba(0,0,0,.12);border-radius:8px;padding:5px 2px;backdrop-filter:blur(2px);border:1px solid rgba(255,255,255,.15);z-index:2;position:relative;margin-top:auto}
 .siItem{text-align:center;display:flex;flex-direction:column;gap:1px}
 .siVal{font-size:15px;font-weight:900;line-height:1}
 .siLbl{font-size:7px;font-weight:700;text-transform:uppercase;opacity:.85;letter-spacing:.5px}
-
-/* CARD BIANCA INFERIORE */
-.bottomCard{
-  background:#fff;border:1px solid #e2e8f0;border-radius:10px;
-  padding:8px;box-shadow:0 2px 6px rgba(0,0,0,.06);
-  position:relative;overflow:hidden;
-}
-.bottomCard::after{
-  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
-  background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,.5) 50%,transparent 100%);
-  animation:softShine 7s infinite ease-in-out;pointer-events:none;
-}
+.bottomCard{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:8px;box-shadow:0 2px 6px rgba(0,0,0,.06);position:relative;overflow:hidden}
+.bottomCard::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,.5) 50%,transparent 100%);animation:softShine 7s infinite ease-in-out;pointer-events:none}
 @keyframes softShine{0%{left:-100%}30%{left:100%}100%{left:100%}}
-
 .bcActions{display:flex;gap:4px}
-.bcBtn{
-  flex:1;padding:5px 2px;border:none;border-radius:6px;font-size:9px;font-weight:800;cursor:pointer;
-  background:#f8fafc;color:#475569;border:1px solid #cbd5e1;transition:all .2s;
-}
+.bcBtn{flex:1;padding:5px 2px;border:none;border-radius:6px;font-size:9px;font-weight:800;cursor:pointer;background:#f8fafc;color:#475569;border:1px solid #cbd5e1;transition:all .2s}
 .bcBtn.active{background:#16a34a;color:#fff;border-color:#15803d}
 .bcBtn.orange.active{background:#d97706;color:#fff;border-color:#b45309}
 .bcBtn.blue{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
 .bcBtn:hover{transform:scale(1.03)}
-
 .bottomCard.absence{background:#fef2f2;border-color:#fecaca}
-.bottomCard.absence label{
-  display:block;font-size:8px;font-weight:800;color:#991b1b;text-transform:uppercase;
-  text-align:center;margin-bottom:4px;letter-spacing:.5px;
-}
-.bottomCard.absence select{
-  width:100%;padding:5px;border-radius:6px;border:1px solid #fca5a5;
-  background:#fff;color:#991b1b;font-weight:700;font-size:11px;text-align:center;
-}
+.bottomCard.absence label{display:block;font-size:8px;font-weight:800;color:#991b1b;text-transform:uppercase;text-align:center;margin-bottom:4px;letter-spacing:.5px}
+.bottomCard.absence select{width:100%;padding:5px;border-radius:6px;border:1px solid #fca5a5;background:#fff;color:#991b1b;font-weight:700;font-size:11px;text-align:center}
 </style>
 </head>
 <body>
@@ -295,66 +184,40 @@ nav button.on{color:#1e3a8a}
 
 <main>
   <div class="view authWrap" id="viewAuth">
-    <div class="card">
-      <h2>🔐 Accedi</h2>
-      <label>Email</label><input id="logEmail" type="email" autocomplete="username">
-      <label>Password</label><input id="logPass" type="password" autocomplete="current-password">
-      <button class="btn" onclick="doLogin()">Entra</button>
-      <div class="msg" id="logMsg"></div>
-    </div>
-    <div class="card">
-      <h2>✨ Nuova registrazione</h2>
-      <label>Nome e cognome</label><input id="regName">
-      <label>Società</label><input id="regClub">
-      <label>Email</label><input id="regEmail" type="email">
-      <label>Password</label><input id="regPass" type="password">
-      <button class="btn ok" onclick="doRegister()">Registrati</button>
-      <div class="msg" id="regMsg"></div>
-    </div>
+    <div class="card"><h2>🔐 Accedi</h2><label>Email</label><input id="logEmail" type="email"><label>Password</label><input id="logPass" type="password"><button class="btn" onclick="doLogin()">Entra</button><div class="msg" id="logMsg"></div></div>
+    <div class="card"><h2>✨ Nuova registrazione</h2><label>Nome e cognome</label><input id="regName"><label>Società</label><input id="regClub"><label>Email</label><input id="regEmail" type="email"><label>Password</label><input id="regPass" type="password"><button class="btn ok" onclick="doRegister()">Registrati</button><div class="msg" id="regMsg"></div></div>
   </div>
 
   <div class="view authWrap hidden" id="viewOnboard">
-    <div class="card">
-      <h2>🏟️ Configura la tua società</h2>
-      <label>Nome società</label><input id="obClub">
-      <label>Il tuo nome</label><input id="obName">
-      <button class="btn" onclick="doOnboard()">Crea e continua</button>
-      <div class="msg" id="obMsg"></div>
-    </div>
+    <div class="card"><h2>🏟️ Configura società</h2><label>Nome società</label><input id="obClub"><label>Il tuo nome</label><input id="obName"><button class="btn" onclick="doOnboard()">Crea e continua</button><div class="msg" id="obMsg"></div></div>
   </div>
 
   <div class="view hidden" id="viewHome">
     <div class="card" style="text-align:center;background:linear-gradient(135deg,#1e3a8a,#0b1035);color:#fff">
       <h2 style="justify-content:center;color:#fff">⚽ Benvenuto</h2>
-      <p style="font-size:12px;opacity:.9">Scegli una sezione dal menu in basso.</p>
+      <p style="font-size:12px;opacity:.9">Scegli una sezione dal menu.</p>
     </div>
     <div class="card">
       <h2>⚡ Azioni rapide</h2>
-      <div class="row">
-        <div><button class="btn" onclick="showTab('pres')">📋 Presenze</button></div>
-        <div><button class="btn ok" onclick="showTab('part')">🔴 Live</button></div>
-      </div>
-      <div class="row">
-        <div><button class="btn sec" onclick="showTab('doc')">📄 Documenti</button></div>
-        <div><button class="btn ghost" onclick="showTab('rosa')">👥 Rosa</button></div>
-      </div>
+      <div class="row"><div><button class="btn" onclick="showTab('pres')">📋 Presenze</button></div><div><button class="btn ok" onclick="showTab('part')">🔴 Live</button></div></div>
+      <div class="row"><div><button class="btn sec" onclick="showTab('doc')">📄 Documenti</button></div><div><button class="btn ghost" onclick="showTab('rosa')">👥 Rosa</button></div></div>
     </div>
   </div>
 
   <div class="view hidden" id="viewSoc">
     <div class="card">
-      <h2>🏟️ Società avversarie <span class="vb blu" id="tsCount">0</span></h2>
+      <h2>🏟️ Società <span class="vb blu" id="tsCount">0</span></h2>
       <input id="tsSearch" placeholder="cerca…" oninput="renderTeamList()">
       <div class="row"><div><label>Nome breve *</label><input id="tsShort"></div><div><label>Denominazione</label><input id="tsOff"></div></div>
       <div class="row"><div><label>Indirizzo</label><input id="tsAddr"></div><div><label>Città</label><input id="tsCity"></div></div>
       <label>Note</label><input id="tsNotes">
-      <button class="btn ok" onclick="addTeam()">➕ Aggiungi società</button>
+      <button class="btn ok" onclick="addTeam()">➕ Aggiungi</button>
       <div class="msg" id="tsMsg"></div>
       <div id="tsList" style="margin-top:10px"></div>
     </div>
     <div class="card">
-      <h2>🧑‍ Staff tecnico</h2>
-      <label>Nome e cognome *</label><input id="stName">
+      <h2>🧑‍ Staff</h2>
+      <label>Nome *</label><input id="stName">
       <label>Ruolo</label>
       <select id="stRole">
         <option>DIRIGENTE ACCOMPAGNATORE UFFICIALE</option><option>ALLENATORE</option>
@@ -364,7 +227,7 @@ nav button.on{color:#1e3a8a}
       </select>
       <div class="row"><div><label>Telefono</label><input id="stPhone"></div><div><label>Tessera FIGC</label><input id="stFigc"></div></div>
       <label>Documento n.</label><input id="stDoc">
-      <button class="btn ok" onclick="addStaff()">➕ Aggiungi staff</button>
+      <button class="btn ok" onclick="addStaff()">➕ Aggiungi</button>
       <div class="msg" id="stMsg"></div>
       <div id="stList" style="margin-top:10px"></div>
     </div>
@@ -384,16 +247,16 @@ nav button.on{color:#1e3a8a}
       <div class="row"><div><label>Matricola FIGC</label><input id="npFigc"></div><div><label>Documento</label><input id="npDoc"></div></div>
       <label>Tessera/Doc. n.</label><input id="npCard">
       <label>Note</label><textarea id="npNote"></textarea>
-      <button class="btn ok" onclick="addPlayer()">💾 Salva giocatore</button>
+      <button class="btn ok" onclick="addPlayer()">💾 Salva</button>
       <div class="msg" id="npMsg"></div>
     </div>
     <div class="card">
       <h2>👥 Rosa <span class="vb blu" id="rosaCount">0</span></h2>
-      <button class="btn danger" style="margin-top:0" onclick="clearRosa()">🗑 Svuota rosa</button>
+      <button class="btn danger" style="margin-top:0" onclick="clearRosa()">🗑 Svuota</button>
       <div id="rosaList"></div>
     </div>
     <div class="card hidden" id="editCard">
-      <h2>✏️ Modifica giocatore</h2>
+      <h2>✏️ Modifica</h2>
       <div class="row"><div><label>N° maglia</label><input id="edNum" type="number"></div><div><label>Foto</label><input id="edFoto" type="file" accept="image/*" onchange="previewFoto('ed','edFotoPrev')"></div></div>
       <div id="edFotoPrev" style="width:64px;height:64px;border-radius:12px;background:#f1f5f9 center/cover no-repeat;display:flex;align-items:center;justify-content:center;margin:6px 0">📷</div>
       <div class="row"><div><label>Cognome</label><input id="edCogn"></div><div><label>Nome</label><input id="edNome"></div></div>
@@ -422,7 +285,7 @@ nav button.on{color:#1e3a8a}
     <div class="card">
       <h2>🏋️ Seduta</h2>
       <input type="hidden" id="attDate">
-      <label>Tipo allenamento</label>
+      <label>Tipo</label>
       <select id="attKind" onchange="kindChanged()">
         <option>Tecnico</option><option>Tattico</option><option>Fisico</option><option>Partitella</option><option value="__altro">Altro…</option>
       </select>
@@ -440,28 +303,29 @@ nav button.on{color:#1e3a8a}
       <button class="btn ok hidden" id="saveBarPres" onclick="saveAttendance()">💾 Salva presenze</button>
     </div>
     <div class="card hidden" id="presRepCard">
-      <h2>📊 Riepilogo presenze</h2>
+      <h2>📊 Riepilogo</h2>
       <div id="repClass" style="overflow-x:auto"></div>
       <h2 style="margin-top:14px">🧮 Matrice</h2>
       <div id="repMatrix" style="overflow-x:auto"></div>
     </div>
-    <button class="btn ghost" onclick="showPresReport()">📊 Vedi riepilogo presenze</button>
+    <button class="btn ghost" onclick="showPresReport()">📊 Vedi riepilogo</button>
   </div>
 
   <div class="view hidden" id="viewPart">
     <div id="partHub">
       <div class="card">
         <h2>⚽ Partite</h2>
-        <button class="btn ok" onclick="openManualNew()">➕ Nuova partita (manual)</button>
-        <button class="btn danger" onclick="openLivePicker()">🔴 Avvia partita LIVE</button>
+        <button class="btn ok" onclick="openManualNew()">➕ Nuova (manual)</button>
+        <button class="btn danger" onclick="openLivePicker()">🔴 Avvia LIVE</button>
         <div class="card hidden" id="hubLive" style="background:#fef2f2;border-color:#dc2626;margin:10px 0 0">
-          <b style="color:#991b1b">🔴 Partita in corso</b>
+          <b style="color:#991b1b">🔴 In corso</b>
           <div id="hubLiveTxt" style="font-size:12px;margin:4px 0"></div>
           <div class="btns2"><button class="btn" style="margin:0" onclick="resumeHubLive()">Riprendi</button><button class="btn danger" style="margin:0" onclick="deleteLiveFromHub()">Elimina</button></div>
         </div>
         <div id="partList" style="margin-top:10px"></div>
       </div>
     </div>
+
     <div id="partLive" class="hidden">
       <div class="liveTop">
         <div style="display:flex;justify-content:center;align-items:center;gap:8px"><span id="lvHalf" style="font-size:12px;font-weight:800"></span></div>
@@ -491,8 +355,9 @@ nav button.on{color:#1e3a8a}
         <button class="btn ok" onclick="saveLiveToMatch()">💾 Salva risultato</button>
         <button class="btn danger" onclick="finalizeLive()">🏁 Concludi</button>
       </div>
-      <button class="btn ghost" onclick="exitLiveNoClose()">✕ Esci (pausa)</button>
+      <button class="btn ghost" onclick="exitLiveNoClose()">✕ Esci</button>
     </div>
+
     <div id="partManual" class="hidden">
       <div class="card">
         <h2 id="pmTitle">Partita</h2>
@@ -505,15 +370,15 @@ nav button.on{color:#1e3a8a}
         </div>
         <div class="calWrap" id="pmCalWrap"></div>
         <div class="row" style="margin-top:8px"><div><label>Campo</label><select id="pmHome"><option value="true">Casa</option><option value="false">Trasferta</option></select></div><div><label>Avversario</label><select id="pmOpp"></select></div></div>
-        <label>O altro avversario</label><input id="pmOppFree">
+        <label>O altro</label><input id="pmOppFree">
         <div class="row"><div><label>Competizione</label><select id="pmComp"><option>Campionato</option><option>Coppa</option><option>Amichevole</option><option>Torneo</option></select></div><div><label>Luogo</label><select id="pmPlace"></select></div></div>
         <div class="row"><div><label>Ora</label><input id="pmTime" type="time"></div><div><label>Goal noi</label><input id="pmGolHome" type="number"></div><div><label>Goal avv</label><input id="pmGolAway" type="number"></div></div>
-        <button class="btn" onclick="pmSaveBase()">💾 Salva dati partita</button>
+        <button class="btn" onclick="pmSaveBase()">💾 Salva dati</button>
       </div>
       <div class="card"><h2>👥 Formazione</h2><div id="pmRoster"></div></div>
-      <div class="card"><h2>🔄 Sostituzioni</h2><div id="pmSubs"></div><button class="btn sec" onclick="addPmSubSlot()">➕ Slot</button><button class="btn ok" onclick="pmSaveSubs()">💾 Salva sostituzioni</button></div>
-      <button class="btn ok" onclick="pmSaveAll()">✅ Salva partita completa</button>
-      <button class="btn ghost" onclick="showPartHub()">← Torna all'elenco</button>
+      <div class="card"><h2>🔄 Sostituzioni</h2><div id="pmSubs"></div><button class="btn sec" onclick="addPmSubSlot()">➕ Slot</button><button class="btn ok" onclick="pmSaveSubs()">💾 Salva sost.</button></div>
+      <button class="btn ok" onclick="pmSaveAll()">✅ Salva completa</button>
+      <button class="btn ghost" onclick="showPartHub()">← Torna</button>
     </div>
   </div>
 
@@ -523,7 +388,7 @@ nav button.on{color:#1e3a8a}
       <label>Partita</label><select id="fmMatch"></select>
       <button class="btn" onclick="openForm()">Carica</button>
       <div id="fmRoster" style="margin-top:10px"></div>
-      <button class="btn ok" onclick="saveForm()">💾 Salva formazione</button>
+      <button class="btn ok" onclick="saveForm()">💾 Salva</button>
     </div>
   </div>
 
@@ -533,14 +398,14 @@ nav button.on{color:#1e3a8a}
       <label>Partita</label><select id="sbMatch" onchange="loadSubs()"></select>
       <div id="subSlots" style="margin-top:10px"></div>
       <button class="btn sec" onclick="addSubSlot()">➕ Slot</button>
-      <button class="btn ok" onclick="saveSubs()">💾 Salva sostituzioni</button>
+      <button class="btn ok" onclick="saveSubs()">💾 Salva</button>
       <div id="sbList" style="margin-top:10px"></div>
     </div>
   </div>
 
-  <div class="view hidden" id="viewDoc
+  <div class="view hidden" id="viewDoc">
     <div class="card">
-      <h2>📄 Documenti di gara</h2>
+      <h2>📄 Documenti</h2>
       <div class="btns2" style="margin:0 0 10px">
         <button class="btn" id="docTabD" onclick="showDoc('dist')">📋 Distinta</button>
         <button class="btn sec" id="docTabC" onclick="showDoc('conv')">📣 Convocazione</button>
@@ -552,29 +417,29 @@ nav button.on{color:#1e3a8a}
 
   <div class="view hidden" id="viewSet">
     <div class="card">
-      <h2>🏟️ Luoghi di gioco</h2>
+      <h2>🏟️ Luoghi</h2>
       <div id="luoghiList" style="margin-bottom:8px"></div>
       <label>Nuovo luogo</label><input id="setLuogo">
-      <button class="btn sec" onclick="addLuogo()">➕ Aggiungi luogo</button>
-      <label>Luogo predefinito (casa)</label><select id="setDefault"></select>
-      <button class="btn ok" onclick="saveLuoghi()">💾 Salva luoghi</button>
+      <button class="btn sec" onclick="addLuogo()">➕ Aggiungi</button>
+      <label>Predefinito</label><select id="setDefault"></select>
+      <button class="btn ok" onclick="saveLuoghi()">💾 Salva</button>
     </div>
   </div>
 
   <div class="view hidden" id="viewReg">
     <div class="card"><h2>📈 Registro</h2><div id="regKpi" style="display:flex;gap:8px;text-align:center"></div></div>
-    <div class="card"><h2>🏃 Presenze per giocatore</h2><div id="regGrafPres"></div></div>
+    <div class="card"><h2>🏃 Presenze</h2><div id="regGrafPres"></div></div>
     <div class="card"><h2>⚽ Marcatori</h2><div id="regGrafGol"></div></div>
-    <div class="card"><h2>🎯 Presenze in distinta</h2><div id="regGrafPart"></div></div>
+    <div class="card"><h2>🎯 Distinta</h2><div id="regGrafPart"></div></div>
   </div>
 </main>
 
 <nav class="hidden" id="nav">
   <button id="nbHome" class="on" onclick="goHome()"><span class="ic">🏠</span>Home</button>
-  <button id="nbCal" onclick="showTab('cal')"><span class="ic">📅</span>Calendario</button>
-  <button id="nbPres" onclick="showTab('pres')"><span class="ic">📋</span>Presenze</button>
-  <button id="nbPart" onclick="showTab('part')"><span class="ic">⚽</span>Partite</button>
-  <button id="nbReg" onclick="showTab('reg')"><span class="ic">📈</span>Registro</button>
+  <button id="nbCal" onclick="showTab('cal')"><span class="ic">📅</span>Cal</button>
+  <button id="nbPres" onclick="showTab('pres')"><span class="ic">📋</span>Pres</button>
+  <button id="nbPart" onclick="showTab('part')"><span class="ic">⚽</span>Part</button>
+  <button id="nbReg" onclick="showTab('reg')"><span class="ic">📈</span>Reg</button>
 </nav>
 
 <div id="sheetPres" class="hidden"><div class="sheetIn2"><h2 id="shName" style="color:#1e3a8a"></h2><div id="sheetBody"></div></div></div>
