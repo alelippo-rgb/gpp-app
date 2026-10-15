@@ -529,89 +529,111 @@ async function loadAttendance(){
 }
 function motivoSel(id,s){const isAlt=s.reason&&MOTIVI.indexOf(s.reason)===-1;const sv=isAlt?"Altro":(s.reason||"");let h='<select class="msel" onclick="event.stopPropagation()" onchange="setReason(\''+id+'\',this.value)"><option value="">Motivo…</option>';MOTIVI.forEach(function(m){h+='<option'+(sv===m?' selected':'')+'>'+m+'</option>';});h+='</select>';return h;}
 function renderGrid(){
+  // 1. Calcolo Statistiche Globali (FIX undefined)
   const pres=ROSA_DATA.filter(function(p){return ATT_STATE[p.id]&&ATT_STATE[p.id].present;});
   const ass=ROSA_DATA.length-pres.length;
   const aparte=pres.filter(function(p){return !ATT_STATE[p.id].with_team;}).length;
   
-  // Contatore semplificato sopra la griglia
   const ac=$("attCount");
-  if(ac)ac.innerHTML=`<div style="text-align:center;font-weight:800;color:#1e3a8a;margin-bottom:10px">✅ ${pres.length} Presenti · ❌ ${ass.length} Assenti · 🟧 ${aparte} A parte</div>`;
+  if(ac){
+    ac.innerHTML=`<div style="text-align:center;font-weight:800;color:#1e3a8a;margin-bottom:10px;font-size:13px">
+      ✅ ${pres.length} Presenti · ❌ ${ass} Assenti · 🟧 ${aparte} A parte
+    </div>`;
+  }
 
   const ag=$("attGrid");
   if(!ag)return;
 
-  // Generiamo le card
-  ag.innerHTML=ROSA_DATA.map(function(p){
+  // 2. Generazione Carte nella Griglia
+  let html='<div class="cardsGrid">'; 
+
+  ROSA_DATA.forEach(function(p){
     const s=ATT_STATE[p.id];
     const isPresent=s.present;
     
-    // Determina colore card
+    // Logica Colore e Corona
     let colorClass = isPresent ? "gold" : "red";
-    if(isPresent && !s.with_team) colorClass = "silver"; // Argento per chi lavora a parte
-    
-    // Calcolo Statistiche Demo (In futuro prenderai questi dati dal DB reale)
-    // Esempio: Presenze Totali Stagione, Gol Stagione, Voto Medio
-    const stats = {
-      pres: Math.floor(Math.random()*20)+1, // Placeholder
-      gol: Math.floor(Math.random()*5),     // Placeholder
-      fair: (Math.random()*2+8).toFixed(1)  // Placeholder voto 8-10
+    let crownIcon = "";
+    let roleLabel = "";
+
+    if(isPresent){
+      if(s.with_team){
+        colorClass="gold";
+        crownIcon='<span class="scCrown scGoldIcon">👑</span>';
+        roleLabel="TITOLARE";
+      } else {
+        colorClass="silver";
+        crownIcon='<span class="scCrown scSilverIcon">⭐</span>'; // Stella per riserva/a parte
+        roleLabel="A PARTE";
+      }
+    } else {
+      colorClass="red";
+      crownIcon='<span class="scCrown scRedIcon">❌</span>';
+      roleLabel="ASSENTE";
+    }
+
+    // Dati Placeholder (In futuro collegali al DB reale)
+    // Esempio: Presenze stagione, Gol, Media voto
+    const statsData = {
+      p: Math.floor(Math.random()*20)+1, 
+      g: Math.floor(Math.random()*5),     
+      f: (Math.random()*2+8).toFixed(1)   
     };
 
-    // HTML Interno della Card
+    // HTML Interno Card
     const photoHtml = p.photo_url 
-      ? `<img src="${p.photo_url}" alt="${p.last_name}">` 
-      : `<span>${(p.first_name||"")[0]}${(p.last_name||"")[0]}</span>`;
+      ? `<img src="${p.photo_url}" alt="">` 
+      : `${(p.first_name||"")[0]}${(p.last_name||"")[0]}`;
 
-    const innerHtml = `
+    const cardInner = `
+      ${crownIcon}
       <div class="scHeader">
-        <img class="scLogo" src="${clubLogo()}" alt="logo">
-        <div style="text-align:right">
-          <div class="scNum">${p.jersey_number || "-"}</div>
-          <div class="scRole">${isPresent ? (s.with_team ? "TITOLARE" : "A PARTE") : "ASSENTE"}</div>
-        </div>
+        <img class="scLogoSmall" src="${clubLogo()}" alt="logo">
+        <div class="scNumBig">${p.jersey_number || "-"}</div>
       </div>
       
       <div class="scBody">
-        <div class="scPhotoBox">${photoHtml}</div>
-        <div class="scName">${p.last_name}</div>
-        <div class="scStatusBadge" style="background:${isPresent?'rgba(255,255,255,.3)':'rgba(0,0,0,.3)'};color:${isPresent?'#422006':'#fff'}">
-          ${isPresent ? "PRESENTE" : "NON CONVOCATO"}
-        </div>
+        <div class="scPhotoCircle">${photoHtml}</div>
+        <div class="scNameText">${p.last_name}</div>
+        <div class="scStatusTag">${roleLabel}</div>
       </div>
 
-      <div class="scStats">
-        <div class="scStatItem"><div class="scStatVal">${stats.pres}</div><div class="scStatLbl">PRES</div></div>
-        <div class="scStatItem"><div class="scStatVal">${stats.gol}</div><div class="scStatLbl">GOL</div></div>
-        <div class="scStatItem"><div class="scStatVal">${stats.fair}</div><div class="scStatLbl">FAIR</div></div>
+      <div class="scStatsFooter">
+        <div class="scStatBox"><div class="scStatValTxt">${statsData.p}</div><div class="scStatLblTxt">PRES</div></div>
+        <div class="scStatBox"><div class="scStatValTxt">${statsData.g}</div><div class="scStatLblTxt">GOL</div></div>
+        <div class="scStatBox"><div class="scStatValTxt">${statsData.f}</div><div class="scStatLblTxt">MEDIA</div></div>
       </div>
     `;
 
-    // Pulsanti Azione (Fuori dalla card grafica, ma legati logicamente)
-    // Sono grandi, facili da toccare e spiegano chiaramente l'azione
+    // Bottoni Azione Sotto
     const actionsHtml = `
-      <div class="scActions">
-        <button class="scBtn ${isPresent && s.with_team ? 'active-grp' : ''}" onclick="event.stopPropagation();setTeamCard('${p.id}',true)">
+      <div class="scActionRow">
+        <button class="scActBtn act-grp ${isPresent && s.with_team?'on':''}" onclick="event.stopPropagation();setTeamCard('${p.id}',true)">
           <span>👥</span>GRUPPO
         </button>
-        <button class="scBtn ${isPresent && !s.with_team ? 'active-apa' : ''}" onclick="event.stopPropagation();setTeamCard('${p.id}',false)">
+        <button class="scActBtn act-apa ${isPresent && !s.with_team?'on':''}" onclick="event.stopPropagation();setTeamCard('${p.id}',false)">
           <span>🚧</span>A PARTE
         </button>
-        <button class="scBtn active-note" onclick="event.stopPropagation();openSheet('${p.id}')">
+        <button class="scActBtn act-note" onclick="event.stopPropagation();openSheet('${p.id}')">
           <span>⚙️</span>NOTE
         </button>
       </div>
     `;
 
-    return `
+    html += `
       <div class="superCardWrap">
         <div class="scCard ${colorClass}" onclick="tapCard('${p.id}')">
-          ${innerHtml}
+          ${cardInner}
         </div>
         ${actionsHtml}
       </div>
     `;
-  }).join("");
-}window.tapCard=function(id){ATT_STATE[id].present=!ATT_STATE[id].present;renderGrid();};
+  });
+
+  html+='</div>'; // Chiude cardsGrid
+  ag.innerHTML=html;
+}
+window.tapCard=function(id){ATT_STATE[id].present=!ATT_STATE[id].present;renderGrid();};
 window.setAll=function(v){ROSA_DATA.forEach(function(p){ATT_STATE[p.id].present=v;});renderGrid();};
 window.setTeamCard=function(id,v){ATT_STATE[id].with_team=v;renderGrid();};
 window.setReason=function(id,v){ATT_STATE[id].reason=v;};
