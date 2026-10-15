@@ -1442,5 +1442,463 @@ window.saveDist=async function(){
   });
   let up=await sb.from("match_players").upsert(rows,{onConflict:"match_id,player_id"});
   if(up.error){
-    const rows2=rows.map(function(x){const c={};for(const k in x){if(k!=="dist_order")c[k]=x[k];}return c;});
-    up
+        await sb.from("match_players").upsert(rows2,{onConflict:"match_id,player_id"});
+    if(up.error){alert("Errore salvataggio distinta: "+up.error.message);return;}
+  }
+  const srows=Object.keys(DOC_STAFF).filter(function(k){return DOC_STAFF[k];}).map(function(k){return{match_id:CUR_DOC_MATCH.id,role:k,staff_id:DOC_STAFF[k]};});
+  for(const s of srows){await sb.from("match_staff").upsert(s,{onConflict:"match_id,role"});}
+  const cleanRows=DOC_ROWS.slice(0,20);
+  const cleanCaps={};
+  cleanRows.forEach(function(id){if(id && DOC_CAPS[id]!=null) cleanCaps[id]=DOC_CAPS[id];});
+  await sb.from("doc_history").insert({club_id:CLUB_ID,match_id:CUR_DOC_MATCH.id,doc_type:"dist",data:{rows:cleanRows,staff:DOC_STAFF,caps:cleanCaps}});
+  if(LIVE&&LIVE.matchId===CUR_DOC_MATCH.id){
+    LIVE.distOrder=cleanRows.filter(function(x){return x;});
+    SETTINGS.live=LIVE;persistSettings();
+    renderPitch();
+  }
+  alert("✅ DISTINTA SALVATA COMPLETA:\ndati intestazione + giocatori (ordine, numeri, CAP/V.CAP) + staff.");
+  populateMatchSelect("docMatch");$("docMatch").value=CUR_DOC_MATCH.id;
+  renderDoc();
+};
+window.saveConv=async function(){
+  if(!CUR_DOC_MATCH)return;
+  await updateMatchMeta();
+  const rows=Object.keys(CONV_STATE).map(function(pid){return{match_id:CUR_DOC_MATCH.id,player_id:pid,convocated:CONV_STATE[pid].conv,conv_note:CONV_STATE[pid].note||null};});
+  if(rows.length){const r=await sb.from("match_players").upsert(rows,{onConflict:"match_id,player_id"});if(r.error){alert("Errore salvataggio convocazione: "+r.error.message);return;}}
+  await sb.from("doc_history").insert({club_id:CLUB_ID,match_id:CUR_DOC_MATCH.id,doc_type:"conv",data:{state:CONV_STATE}});
+  CONV_OVERRIDE=true;
+  alert("✅ CONVOCAZIONE SALVATA COMPLETA:\ndati intestazione + SI/NO e motivazioni.");
+  populateMatchSelect("docMatch");$("docMatch").value=CUR_DOC_MATCH.id;
+  renderDoc();
+};
+window.loadDocHistory=async function(){
+  const sel=$("docHistSel");if(!sel||!sel.value)return;
+  const r=await sb.from("doc_history").select("*").eq("id",sel.value).maybeSingle();
+  if(!r.data)return;
+  if(DOC_MODE==="dist"){
+    DOC_ROWS=uniqRows(r.data.data.rows||[]).slice(0,20);
+    while(DOC_ROWS.length<20)DOC_ROWS.push("");
+    DOC_STAFF=r.data.data.staff||{};
+    DOC_CAPS=r.data.data.caps||{};
+    DOC_ROWS_MATCH=CUR_DOC_MATCH.id;
+    buildDoc();
+  }else{
+    CONV_STATE=r.data.data.state||{};
+    CONV_OVERRIDE=true;
+    buildDoc();
+  }
+  alert("Versione storica caricata nel foglio. Premi SALVA per renderla quella corrente.");
+};
+function populateDocHistory(m){
+  const sel=$("docHistSel");if(!sel)return;
+  sb.from("doc_history").select("*").eq("match_id",m.id).eq("doc_type",DOC_MODE).order("created_at",{ascending:false}).limit(10).then(function(r){
+    const rows=r.data||[];
+    sel.innerHTML=rows.length?rows.map(function(x){const d=new Date(x.created_at);return '<option value="'+x.id+'">'+d.toLocaleDateString()+" "+d.toLocaleTimeString().slice(0,5)+'</option>';}).join(""):'<option value="">Nessuno storico</option>';
+  });
+}
+window.renderDoc=function(){
+  var dm=$("docMatch"),out=$("docOut");if(!dm||!out)return;
+  var m=PARTITE.find(function(x){return x.id===dm.value;});
+  CUR_DOC_MATCH=m||null;
+  CONV_OVERRIDE=false;
+  if(!m){out.innerHTML='<div class="spin">Nessuna partita</div>';return;}
+  var dsb=$("docSaveBtn");if(dsb)dsb.classList.add("hidden");
+  if(DOC_MODE==="dist"){
+    Promise.all([
+      sb.from("match_staff").select("*").eq("match_id",m.id),
+      sb.from("doc_history").select("data").eq("match_id",m.id).eq("doc_type","dist").order("created_at",{ascending:false}).limit(1)
+    ]).then(function(res){
+      DOC_STAFF={};
+      (res[0].data||[]).forEach(function(x){DOC_STAFF[x.role]=x.staff_id;});
+      DOC_CAPS=(res[1].data&&res[1].data[0]&&res[1].data[0].data&&res[1].data[0].data.caps)||{};
+      DOC_ROWS_MATCH=null;
+      buildDoc();
+    });
+  }else{buildDoc();}
+};
+function docEditPanel(m,ritrovo,luogo){
+  const isConv=(DOC_MODE==="conv");
+  const luoghi=SETTINGS.luoghi||[];
+  const isOtherPlace=luogo&&luoghi.indexOf(luogo)===-1&&!teamByName(luogo);
+  const placeOpts=luoghi.map(function(x){return '<option value="'+x+'"'+(x===luogo?" selected":"")+'>'+x+'</option>';}).join("")+
+    TEAMS.map(function(t){const addr=(t.address||"")+(t.city?(" – "+t.city):"");return '<option value="'+t.short_name+'"'+(t.short_name===luogo?" selected":"")+'>'+t.short_name+(addr?(" — "+addr):"")+'</option>';}).join("")+
+    '<option value="__altro"'+(isOtherPlace?" selected":"")+'>Altro luogo…</option>';
+  return '<div class="noPrint" style="border:2px dashed #1d4ed8;border-radius:12px;padding:10px;margin-bottom:12px;background:#f8fafc">'+
+    '<b style="color:#1e3a8a">✏️ Dati documento — si salvano TUTTI insieme con il pulsante SALVA in fondo al foglio</b>'+
+    '<div class="row"><div><label>Campo</label><select id="docHome" onchange="docHomeChange()"><option value="true"'+(m.home?" selected":"")+'>🏠 Casa</option><option value="false"'+(!m.home?" selected":"")+'>🚌 Trasferta</option></select></div><div><label>Avversario (società registrate)</label><select id="docOpp" onchange="docOppChange()">'+TEAMS.map(function(t){return '<option'+(t.short_name===m.opponent?" selected":"")+'>'+t.short_name+'</option>';}).join("")+'</select></div></div>'+
+    '<div class="row"><div><label>O altro avversario (sovrascrive)</label><input id="docOppFree" placeholder="scrivi se non in elenco"></div><div><label>Luogo / campo</label><select id="docPlace" onchange="docPlaceChange()">'+placeOpts+'</select></div></div>'+
+    '<div class="row"><div><label>Altro luogo (se "Altro luogo…")</label><input id="docPlaceFree" class="'+(isOtherPlace?"":"hidden")+'" value="'+(isOtherPlace?luogo:"")+'"></div><div><label>Arbitro (opzionale)</label><input id="docRef" value="'+(m.referee||"")+'" placeholder="non obbligatorio"></div></div>'+
+    '<div class="row"><div><label>Data</label><input type="date" id="docDate" value="'+m.date+'"></div><div><label style="'+(isConv?"font-weight:800;color:#c8102e":"")+'">Orario inizio</label><input type="time" id="docTime" value="'+(m.time||"")+'" onchange="docSyncTime(\'start\')"></div></div>'+
+    '<div class="row"><div><label style="'+(isConv?"font-weight:800;color:#c8102e":"")+'">Orario ritrovo (−1h15)</label><input type="time" id="docRitrovo" value="'+ritrovo+'" onchange="docSyncTime(\'rit\')"></div><div><label>Competizione</label><select id="docComp"><option'+(m.competition==="Campionato"?" selected":"")+'>Campionato</option><option'+(m.competition==="Coppa"?" selected":"")+'>Coppa</option><option'+(m.competition==="Amichevole"?" selected":"")+'>Amichevole</option><option'+(m.competition==="Torneo"?" selected":"")+'>Torneo</option></select></div></div>'+
+    '<div class="row"><div><label>Categoria</label><input id="docCat" value="'+(m.category||"Under 14")+'"></div><div><label>🕘 Storico</label><select id="docHistSel"></select></div></div>'+
+    '<button class="btn sec" onclick="loadDocHistory()">Carica versione storica</button></div>';
+}
+function convNoteText(){
+  return "E' OBBLIGATORIO PRESENTARSI IN DIVISA DI RAPPRESENTANZA e BORSONE UFFICIALE DELLA SOCIETA'<br>"+
+         "SI RACCOMANDA LA PUNTUALITA', IN CASO DI RITARDO E/O PROBLEMI, AVVISARE TEMPESTIVAMENTE IL DIRIGENTE<br>"+
+         "SE RICHIESTO DAL DIRIGENTE, PORTARE CON SE UN DOCUMENTO DI IDENTITA' SEMPRE IN ORIGINALE<br>"+
+         "IL MANCATO RISPETTO DI QUANTO SOPRA INDICATO E' DA CONSIDERARSI UN GRAVE INADEMPIMENTO DISCIPLINARE<br>"+
+         "SALVO PER VALIDI E GIUSTIFICATI MOTIVI CHE SARANNO VALUTATI DALLO STAFF TECNICO e SOCIETARIO";
+}
+function uniqRows(arr){
+  const seen={};
+  return (arr||[]).filter(function(id){
+    if(!id || seen[id]) return false;
+    seen[id]=1;
+    return true;
+  });
+}
+function distOptions(pid){
+  const used=DOC_ROWS.filter(function(id){return id && id!==pid;});
+  const arr=DOC_ELENCO.filter(function(p){return used.indexOf(p.id)===-1;});
+  if(pid){
+    const cur=pById(pid);
+    if(cur && arr.indexOf(cur)===-1) arr.unshift(cur);
+  }
+  return '<option value="">— scegli —</option>'+arr.map(function(p){
+    return '<option value="'+p.id+'"'+(p.id===pid?' selected':'')+'>'+p.last_name+' '+p.first_name+'</option>';
+  }).join("");
+}
+function refreshDistSelects(){
+  const cnt={};DOC_ROWS.forEach(function(id){if(id){cnt[id]=(cnt[id]||0)+1;}});
+  for(var i=0;i<20;i++){
+    const pid=DOC_ROWS[i]||"";
+    const p=pid?pById(pid):null;
+    const sel=document.querySelector('#docOut select[data-row="'+i+'"]');
+    if(sel) sel.innerHTML=distOptions(pid);
+    const capTd=document.querySelector('#docOut td[data-cap-cell="'+i+'"]');
+    if(capTd){const capVal=pid?(DOC_CAPS[pid]||""):"";capTd.innerHTML=pid?'<input class="capIn" value="'+capVal+'" onchange="setDocCap(\''+pid+'\',this.value)">':'';}
+    const mTd=document.querySelector('#docOut td[data-matr="'+i+'"]');if(mTd)mTd.textContent=p?(p.figc_id||""):"";
+    const dTd=document.querySelector('#docOut td[data-data="'+i+'"]');if(dTd)dTd.textContent=p?birthFmt(p.birth_date):"";
+    const tTd=document.querySelector('#docOut td[data-tess="'+i+'"]');if(tTd)tTd.textContent=p?(p.card_number||""):"";
+    const tr=document.querySelector('#docOut tr[data-tr="'+i+'"]');
+    if(tr){const dup=pid&&cnt[pid]>1;tr.style.background=dup?"#fee2e2":"";}
+  }
+  const c=$("distCount");if(c)c.textContent=DOC_ROWS.filter(function(x){return x;}).length;
+}
+function buildDoc(){
+  var m=CUR_DOC_MATCH,out=$("docOut");if(!m||!out)return;
+  var ci=clubInfo(),logo=clubLogo();
+  var ritrovo=minusMinuti(m.time,75);
+  var luogo=m.place||SETTINGS.luogo_default;
+  var viaLuogo=getVia(luogo);
+  var viaAvv=getVia(m.opponent);
+  var dataFmt=m.date.split("-").reverse().join("/");
+  var gara=(ci.den+" VS "+teamOfficial(m.opponent));
+  var titoloSoc=(ci.nome||"").replace(/\./g,"");
+  var campoStampa=m.home?(luogo+(viaLuogo?(" "+viaLuogo):"")):(viaAvv||luogo+(viaLuogo?(" "+viaLuogo):""));
+  sb.from("match_players").select("*").eq("match_id",m.id).then(function(r){
+    var mpM={};(r.data||[]).forEach(function(x){mpM[x.player_id]=x;});
+    var elenco=PLAYERS.filter(function(p){return inRosa(p,m.date);}).sort(function(a,b){return (a.jersey_number||99)-(b.jersey_number||99);});
+    DOC_ELENCO=elenco;
+    var h=docEditPanel(m,ritrovo,luogo);
+    if(DOC_MODE==="dist"){
+      var savedRows=elenco.filter(function(p){var x=mpM[p.id];return x&&x.convocated&&x.dist_order!=null;});
+      var distSaved=savedRows.length>0;
+      if(DOC_ROWS_MATCH!==m.id){
+        DOC_ROWS_MATCH=m.id;
+        if(distSaved){
+          savedRows.sort(function(a,b){return (mpM[a.id].dist_order||0)-(mpM[b.id].dist_order||0);});
+          DOC_ROWS=uniqRows(savedRows.map(function(p){return p.id;})).slice(0,20);
+        }else{
+          DOC_ROWS=[];
+        }
+        while(DOC_ROWS.length<20)DOC_ROWS.push("");
+      }
+      h+='<div class="noPrint" style="font-size:11px;font-weight:800;margin-bottom:6px;color:'+(distSaved?'#166534':'#92400e')+'">'+(distSaved?'📄 Distinta caricata dall\'ultimo salvataggio: nomi e CAP/V.CAP già compilati.':'🆕 Nuova distinta vuota: compila tu le righe. I giocatori già scelti non ricompariranno nelle altre tendine.')+'</div>';
+      var cnt={};DOC_ROWS.forEach(function(id){if(id){cnt[id]=(cnt[id]||0)+1;}});
+      var esclusi=elenco.filter(function(p){return DOC_ROWS.indexOf(p.id)===-1;});
+      h+='<div class="docWrap">';
+      h+='<div class="distSpacer"></div>';
+      h+='<div class="distBar">DISTINTA GIOCATORI</div>';
+      h+='<div class="distBarLight">INCONTRO di '+m.competition+'</div>';
+      h+='<div class="distBarLight bold">'+gara+'</div>';
+      h+='<div class="distSpacer"></div>';
+      h+='<div class="docMetaRow"><span class="lbl">VALEVOLE PER:</span><span class="val">'+(m.competition||"Campionato")+' '+(m.category||"Under 14")+'</span></div>';
+      h+='<div class="docMetaRow"><span class="lbl">DATA:</span><span class="val">'+dataFmt+'</span><span class="lbl">ORARIO:</span><span class="val">'+(m.time?fmtTime(m.time):"")+'</span><span class="lbl">CAMPO:</span><span class="val">'+campoStampa+'</span></div>';
+      h+='<div class="distSpacer"></div>';
+      h+='<div class="docScroll"><table class="docGrid">';
+      h+='<tr><th rowspan="3" style="width:6%">N°</th><th rowspan="3">COGNOME e NOME</th><th style="width:11%">CAP</th><th rowspan="3" class="col-matr" style="width:13%">MATRICOLA</th><th style="width:14%">DATA</th><th class="col-tess" style="width:15%">TESSERA F.I.G.C.</th></tr>';
+      h+='<tr><th>---</th><th>DI</th><th class="col-tess">o</th></tr>';
+      h+='<tr><th>V.CAP</th><th>NASCITA</th><th class="col-tess">DOCUMENTO</th></tr>';
+      for(var i=0;i<20;i++){
+        var pid=DOC_ROWS[i];
+        var p=elenco.find(function(x){return x.id===pid;});
+        var dup=pid&&cnt[pid]>1;
+        var capVal=pid?(DOC_CAPS[pid]||""):"";
+        h+='<tr data-tr="'+i+'"'+(dup?' style="background:#fee2e2"':'')+'><td>'+(i+1)+'</td>'+
+           '<td><select data-row="'+i+'" onchange="setDocRow('+i+',this.value)">'+distOptions(pid)+'</select>'+
+           (dup?' <b style="color:#991b1b">⚠</b>':'')+'</td>'+
+           '<td data-cap-cell="'+i+'">'+(pid?'<input class="capIn" value="'+capVal+'" onchange="setDocCap(\''+pid+'\',this.value)">':'')+'</td>'+
+           '<td class="col-matr" data-matr="'+i+'">'+(p?(p.figc_id||""):"")+'</td>'+
+           '<td data-data="'+i+'">'+(p?birthFmt(p.birth_date):"")+'</td>'+
+           '<td class="col-tess" data-tess="'+i+'">'+(p?(p.card_number||""):"")+'</td></tr>';
+      }
+      h+='</table></div>';
+      h+='<div class="distSpacer"></div>';
+      h+='<div class="docScroll"><table class="docGrid">';
+      RUOLI_STAFF.forEach(function(rl){
+        var sel=DOC_STAFF[rl]||((STAFF.find(function(x){return (x.role||"").toUpperCase()===rl;})||{}).id)||"";
+        var labs=STAFF_LAB[rl]||STAFF_LAB.DEFAULT;
+        var sid=sel||"";
+        h+='<tr><td class="rl" rowspan="2" style="width:32%">'+rl+'</td><td rowspan="2"><select onchange="setDocStaff(\''+rl.replace(/'/g,"\\'")+'\',this.value)"><option value="">— scegli —</option>'+STAFF.map(function(s){return '<option value="'+s.id+'"'+(sel===s.id?" selected":"")+'>'+s.full_name+'</option>';}).join("")+'</select></td><td class="lb" style="width:16%">'+labs[0]+'</td><td style="width:18%">'+staffField(sid,"figc_id")+'</td></tr>';
+        h+='<tr><td class="lb">'+labs[1]+'</td><td>'+staffField(sid,"doc_id")+'</td></tr>';
+      });
+      h+='</table></div>';
+      h+='<div class="distSpacer"></div>';
+      h+='<div class="distDecl">Il sottoscritto Dirigente accompagnatore ufficiale dichiara che il presente elenco è redatto in ottemperanza a quanto stabilito dagli artt. 61 e 66 delle N.O.I.F.</div>';
+      h+='<div class="distSpacer"></div>';
+      h+='<div class="distSign"><div>L\'ARBITRO</div><div>IL DIRIGENTE ACCOMPAGNATORE UFFICIALE</div></div>';
+      h+='</div>';
+      h+='<div class="docBtns noPrint"><button class="btn ok" onclick="saveDist()">💾 SALVA DISTINTA (dati + giocatori + staff)</button></div>';
+      h+='<div class="noPrint" style="margin-top:10px;border:2px dashed #f59e0b;border-radius:12px;padding:10px;background:#fffbeb">';
+      h+='<b style="color:#92400e">🔎 CONTROLLO (non stampato):</b> ';
+      h+='<div style="font-size:12px;margin-top:6px">In distinta: <b id="distCount">'+DOC_ROWS.filter(function(x){return x;}).length+'</b> su 20 posti. ';
+      var dupN=Object.keys(cnt).filter(function(k){return cnt[k]>1;}).length;
+      if(dupN>0)h+='<span class="vb rosso">⚠ '+dupN+' giocatore/i RIPETUTO/I!</span> ';
+      h+='</div>';
+      h+='<div style="font-size:12px;margin-top:6px"><b>NON inseriti ('+esclusi.length+'):</b> '+(esclusi.length?esclusi.map(function(p){return p.last_name+" "+p.first_name;}).join(", "):"nessuno, tutti considerati ✔")+'</div>';
+      h+='</div>';
+    }else{
+      if(!CONV_OVERRIDE){
+        CONV_STATE={};
+        elenco.forEach(function(p){var x=mpM[p.id];CONV_STATE[p.id]={conv:x?x.convocated:true,note:x?(x.conv_note||""):""};});
+      }
+      var indirizzo=campoStampa;
+      var totRighe=Math.max(26,elenco.length);
+      h+='<div class="docWrap convWrap">';
+      h+='<div class="convHead"><div class="logoBox"><img src="'+logo+'" alt="logo"><div class="aut">AUTOINGROS</div></div><div class="titleBox"><span>'+titoloSoc+'</span></div></div>';
+      h+='<div class="convYellow">CONVOCAZIONE</div>';
+      h+='<table class="convMeta">';
+      h+='<tr><th>CATEGORIA</th><td class="center" colspan="3" style="font-size:16px;font-weight:900">'+(m.category||"Under14")+'</td></tr>';
+      h+='<tr><th>PARTITA</th><td class="center" colspan="3" style="font-size:13px;font-weight:800">'+gara+'</td></tr>';
+      h+='<tr><th>VALEVOLE PER</th><td colspan="3" style="font-size:9px">'+(m.competition||"Campionato")+' Regionale U14</td></tr>';
+      h+='<tr><th>DATA</th><td style="width:32%">'+dataFmt+'</td><th style="width:110px">ORARIO RITROVO</th><td style="width:20%">'+ritrovo+'</td></tr>';
+      h+='<tr><th>INDIRIZZO</th><td colspan="3">'+indirizzo+'</td></tr>';
+      h+='</table>';
+      h+='<table class="convGrid"><tr><th style="width:5%">N°</th><th style="width:27%">COGNOME</th><th style="width:27%">NOME</th><th style="width:16%">CONVOCATO SI/NO</th><th style="width:25%">MOTIVAZIONE E/O NOTE</th></tr>';
+      for(var j=0;j<totRighe;j++){
+        var pl=elenco[j];
+        if(pl){
+          var s=CONV_STATE[pl.id]||{conv:true,note:""};
+          h+='<tr><td>'+(j+1)+'</td><td>'+pl.last_name+'</td><td>'+pl.first_name+'</td>'+
+             '<td><select onchange="convSet(\''+pl.id+'\',\'conv\',this.value)"><option value="1"'+(s.conv?" selected":"")+'>SI</option><option value="0"'+(!s.conv?" selected":"")+'>NO</option></select></td>'+
+             '<td><select onchange="convSet(\''+pl.id+'\',\'note\',this.value)">'+MOTIVI_CONV.map(function(o){return '<option'+(s.note===o?" selected":"")+'>'+o+'</option>';}).join("")+'</select></td></tr>';
+        }else{
+          h+='<tr><td>'+(j+1)+'</td><td></td><td></td><td></td><td></td></tr>';
+        }
+      }
+      h+='</table>';
+      h+='<div class="convNote">'+convNoteText()+'</div>';
+      h+='<div class="convSign"><div class="l">IL DIRIGENTE:</div><div class="m"></div><div class="r">DATA: '+dataFmt+'</div></div>';
+      h+='</div>';
+      h+='<div class="docBtns noPrint"><button class="btn ok" onclick="saveConv()">💾 SALVA CONVOCAZIONE (dati + SI/NO)</button></div>';
+    }
+    out.innerHTML=h;
+    populateDocHistory(m);
+  });
+}
+window.convSet=function(id,field,val){if(!CONV_STATE[id])CONV_STATE[id]={conv:true,note:""};CONV_STATE[id][field]=(field==="conv")?(val==="1"):val;};
+
+/* ===== CALENDARIO GENERALE ROBUSTO ===== */
+async function loadCalGen(){
+  try{
+    const rs=await sb.from("sessions").select("*").eq("club_id",CLUB_ID).order("date");
+    const rm=await sb.from("matches").select("*").eq("club_id",CLUB_ID).order("date");
+    CALGEN_DATA={sessions:rs.data||[],matches:rm.data||[]};
+  }catch(e){
+    console.error("Errore carico calendario:",e);
+    CALGEN_DATA={sessions:[],matches:[]};
+  }
+}
+
+window.renderCalView=async function(){
+  const vc=$("viewCal");
+  if(!vc)return;
+
+  try{
+    await loadCalGen();
+
+    if(!$("calGenCard")){
+      vc.innerHTML=
+        '<div class="card cgCard" id="calGenCard">'+
+          '<div class="cgHead">'+
+            '<button class="cgNav" onclick="calGenPrev()">‹</button>'+
+            '<div class="cgTitleWrap">'+
+              '<div class="cgMonth" id="calGenTitle"></div>'+
+              '<div class="cgSub">Tocca un giorno per i dettagli</div>'+
+            '</div>'+
+            '<button class="cgNav" onclick="calGenNext()">›</button>'+
+          '</div>'+
+          '<div class="cgWeek"><div>Lun</div><div>Mar</div><div>Mer</div><div>Gio</div><div>Ven</div><div>Sab</div><div>Dom</div></div>'+
+          '<div class="cgGrid" id="calGenWrap"></div>'+
+          '<div class="cgLegend">'+
+            '<span><i style="background:#16a34a"></i> Allenamento</span>'+
+            '<span><i style="background:#2563eb"></i> Partita</span>'+
+            '<span><i style="background:#dc2626"></i> Live</span>'+
+          '</div>'+
+          '<div class="cgPanel" id="calGenList"></div>'+
+        '</div>';
+    }
+
+    if(!CALGEN_SEL||!/^\d{4}-\d{2}-\d{2}$/.test(CALGEN_SEL)){
+      CALGEN_SEL=isoOf(new Date());
+    }
+
+    const cur=new Date(CALGEN_SEL+"T00:00:00");
+    if(!isNaN(cur.getTime())){
+      CALGEN.y=cur.getFullYear();
+      CALGEN.m=cur.getMonth();
+    }
+
+    $("calGenTitle").textContent=MESI[CALGEN.m]+" "+CALGEN.y;
+    renderCalGenGrid();
+    showDayList(CALGEN_SEL);
+  }catch(e){
+    console.error(e);
+    vc.innerHTML='<div class="card"><h2>📅 Calendario</h2><div class="calError">Errore calendario: '+String(e.message||e)+'</div></div>';
+  }
+};
+
+function renderCalGenGrid(){
+  const wrap=$("calGenWrap");
+  if(!wrap||!CALGEN_DATA)return;
+
+  const y=CALGEN.y,m=CALGEN.m;
+  const dow=(new Date(y,m,1).getDay()+6)%7;
+  const days=new Date(y,m+1,0).getDate();
+  const today=isoOf(new Date());
+
+  const sMap={},mMap={};
+  CALGEN_DATA.sessions.forEach(function(s){
+    if(!s||!s.date)return;
+    (sMap[s.date]=sMap[s.date]||[]).push(s);
+  });
+  CALGEN_DATA.matches.forEach(function(mm){
+    if(!mm||!mm.date)return;
+    (mMap[mm.date]=mMap[mm.date]||[]).push(mm);
+  });
+
+  let h="";
+  for(let i=0;i<dow;i++) h+='<div class="cgCell empty"></div>';
+
+  for(let d=1;d<=days;d++){
+    const iso=y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+    const ses=sMap[iso]||[];
+    const mat=mMap[iso]||[];
+    const live=mat.filter(function(x){return x.status==="live";}).length;
+    const normal=mat.length-live;
+
+    let dots="";
+    if(ses.length) dots+='<i class="cgDot train">'+ses.length+'</i>';
+    if(normal) dots+='<i class="cgDot match">'+normal+'</i>';
+    if(live) dots+='<i class="cgDot live">'+live+'</i>';
+
+    h+='<div class="cgCell'+(iso===today?' today':'')+(iso===CALGEN_SEL?' sel':'')+'" data-iso="'+iso+'">'+
+       '<span class="cgNum">'+d+'</span>'+
+       '<div class="cgDots">'+dots+'</div>'+
+       '</div>';
+  }
+
+  wrap.innerHTML=h;
+  wrap.querySelectorAll(".cgCell[data-iso]").forEach(function(c){
+    c.onclick=function(){showDayList(c.dataset.iso);};
+  });
+}
+
+window.calGenPrev=function(){
+  CALGEN.m--;
+  if(CALGEN.m<0){CALGEN.m=11;CALGEN.y--;}
+  CALGEN_SEL=isoOf(new Date(CALGEN.y,CALGEN.m,1));
+  $("calGenTitle").textContent=MESI[CALGEN.m]+" "+CALGEN.y;
+  renderCalGenGrid();
+  showDayList(CALGEN_SEL);
+};
+
+window.calGenNext=function(){
+  CALGEN.m++;
+  if(CALGEN.m>11){CALGEN.m=0;CALGEN.y++;}
+  CALGEN_SEL=isoOf(new Date(CALGEN.y,CALGEN.m,1));
+  $("calGenTitle").textContent=MESI[CALGEN.m]+" "+CALGEN.y;
+  renderCalGenGrid();
+  showDayList(CALGEN_SEL);
+};
+
+function showDayList(iso){
+  CALGEN_SEL=iso;
+  renderCalGenGrid();
+
+  const el=$("calGenList");
+  if(!el||!CALGEN_DATA)return;
+
+  const ses=CALGEN_DATA.sessions.filter(function(s){return s&&s.date===iso;});
+  const mat=CALGEN_DATA.matches.filter(function(mm){return mm&&mm.date===iso;});
+
+  let h='<div class="cgDayTitle">📌 '+iso.split("-").reverse().join("/")+'</div>';
+
+  if(!ses.length && !mat.length){
+    h+='<div class="cgEmpty">Nessun impegno in questa giornata.</div>';
+  }
+
+  ses.forEach(function(s){
+    h+='<div class="cgItem">'+
+       '<div class="cgIcon train">🏋️</div>'+
+       '<div class="cgInfo">'+
+       '<b>'+(s.kind||"Allenamento")+'</b>'+
+       '<small>'+(s.time?fmtTime(s.time):"—")+(s.place?(" · "+s.place):"")+'</small>'+
+       '<div class="cgActions"><button onclick="gotoPres(\''+iso+'\')">Apri presenze</button></div>'+
+       '</div></div>';
+  });
+
+  mat.forEach(function(mm){
+    const live=mm.status==="live";
+    const sc=(mm.score_home!=null&&mm.score_away!=null)?(" · "+mm.score_home+"-"+mm.score_away):"";
+    h+='<div class="cgItem">'+
+       '<div class="cgIcon '+(live?'live':'match')+'">⚽</div>'+
+       '<div class="cgInfo">'+
+       '<b>'+(mm.home?"Casa":"Trasferta")+' vs '+(mm.opponent||"?")+'</b>'+
+       '<small>'+(mm.competition||"")+(mm.time?(" · "+fmtTime(mm.time)):"")+(mm.place?(" · "+mm.place):"")+sc+(live?" · LIVE":"")+'</small>'+
+       '<div class="cgActions">'+
+       '<button onclick="gotoDoc(\''+mm.id+'\')">Documenti</button>'+
+       '<button onclick="openPart(\''+mm.id+'\')">Apri partita</button>'+
+       '</div></div></div>';
+  });
+
+  el.innerHTML=h;
+}
+
+window.gotoPres=function(iso){
+  showTab("pres",true);
+  const a=$("attDate");
+  if(a)a.value=iso;
+  renderCal();
+  loadAttendance();
+};
+
+window.gotoDoc=function(id){
+  showTab("doc",true);
+  const d=$("docMatch");
+  if(d)d.value=id;
+  renderDoc();
+};
+/* ===== FINE CALENDARIO ROBUSTO ===== */
+
+async function loadRegistro(){const rm=await sb.from("matches").select("*").eq("club_id",CLUB_ID);const ms=rm.data||[];const ids=ms.map(function(m){return m.id;});let ev=[],mp=[];
+  if(ids.length){ev=(await sb.from("match_events").select("*").in("match_id",ids)).data||[];mp=(await sb.from("match_players").select("*").in("match_id",ids)).data||[];}
+  let V=0,P=0,S=0,GF=0,GS=0;ms.forEach(function(m){if(m.score_home==null)return;GF+=m.score_home;GS+=m.score_away;if(m.score_home>m.score_away){V++;}else if(m.score_home===m.score_away){P++;}else{S++;}});
+  const kp=$("regKpi");if(kp)kp.innerHTML='<div><b>'+V+'</b><small>VITT</small></div><div><b>'+P+'</b><small>PAREG</small></div><div><b>'+S+'</b><small>SCONF</small></div><div><b>'+GF+'-'+GS+'</b><small>GOL</small></div>';
+  const rs=await sb.from("sessions").select("*").eq("club_id",CLUB_ID);const sids=(rs.data||[]).map(function(s){return s.id;});let att=[];if(sids.length)att=(await sb.from("attendances").select("*").in("session_id",sids)).data||[];
+  const pa={};att.forEach(function(a){if(a.present){pa[a.player_id]=(pa[a.player_id]||0)+1;}});
+  const maxP=Math.max.apply(null,[1].concat(Object.keys(pa).map(function(k){return pa[k];})));
+  const gp=$("regGrafPres");if(gp)gp.innerHTML=PLAYERS.map(function(p){const n=pa[p.id]||0;const w=Math.round(n/maxP*100);return '<div class="grow"><div class="gn"><b>'+(p.jersey_number||"-")+'</b> '+p.last_name+'</div><div class="bar"><i style="width:'+w+'%"></i></div><div class="gv">'+n+'</div></div>';}).join("");
+  const gol={};ev.forEach(function(e){if(e.type==="goal"){gol[e.player_id]=(gol[e.player_id]||0)+1;}});
+  const maxG=Math.max.apply(null,[1].concat(Object.keys(gol).map(function(k){return gol[k];})));
+  const gRows=Object.keys(gol).map(function(k){return{id:k,n:gol[k]};}).sort(function(a,b){return b.n-a.n;});
+  const gg=$("regGrafGol");if(gg)gg.innerHTML=gRows.length?gRows.map(function(r){const p=pById(r.id);const w=Math.round(r.n/maxG*100);return '<div class="grow"><div class="gn"><b>'+(p?(p.jersey_number||"-"):"-")+'</b> '+cognomeOf(r.id)+'</div><div class="bar gol"><i style="width:'+w+'%"></i></div><div class="gv">'+r.n+'</div></div>';}).join(""):'<div class="spin">Nessun gol</div>';
+  const pp={};mp.forEach(function(x){if(x.convocated){pp[x.player_id]=(pp[x.player_id]||0)+1;}});
+  const maxPP=Math.max.apply(null,[1].concat(Object.keys(pp).map(function(k){return pp[k];})));
+  const gpp=$("regGrafPart");if(gpp)gpp.innerHTML=PLAYERS.map(function(p){const n=pp[p.id]||0;const w=Math.round(n/maxPP*100);return '<div class="grow"><div class="gn"><b>'+(p.jersey_number||"-")+'</b> '+p.last_name+'</div><div class="bar"><i style="width:'+w+'%"></i></div><div class="gv">'+n+'</div></div>';}).join("");}
+
+const ad=document.getElementById("attDate");if(ad)ad.value=isoOf(new Date());
+const pmd=document.getElementById("pmDate");if(pmd)pmd.value=isoOf(new Date());
+boot();
