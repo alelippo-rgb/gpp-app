@@ -531,60 +531,128 @@ function motivoSel(id,s){const isAlt=s.reason&&MOTIVI.indexOf(s.reason)===-1;con
 
 // FUNZIONE RENDERGRID AGGIORNATA CON STATS REALI E MOTIVAZIONE ASSENZA
 async function renderGrid(){
-  const d=$("attDate").value; // Data della seduta corrente
-  
-  // --- 1. CARICA DATI REALI DAL DATABASE FINO ALLA DATA SELEZIONATA ---
+  const d=$("attDate").value;
   let statsMap = {};
   
   try {
-    // Query Presenze (Sessioni passate + oggi se salvato)
     const sessRes = await sb.from("sessions")
       .select("date, attendances(player_id, present)")
       .eq("club_id", CLUB_ID)
-      .lte("date", d); // Fino alla data selezionata
+      .lte("date", d);
     
     if (!sessRes.error && sessRes.data) {
       sessRes.data.forEach(s => {
         s.attendances.forEach(att => {
           if (att.present) {
-            statsMap[att.player_id] = statsMap[att.player_id] || { pres:0, gol:0, assist:0, tiri:0, gialli:0, rossi:0 };
+            statsMap[att.player_id] = statsMap[att.player_id] || { pres:0, gol:0, assist:0 };
             statsMap[att.player_id].pres++;
           }
         });
       });
     }
 
-    // Query Eventi Partita (Gol, Assist, Cartellini, Tiri)
-    // Filtriamo solo le partite giocate fino ad oggi
     const playedMatches = PARTITE.filter(m => m.date <= d).map(m => m.id);
     if(playedMatches.length > 0){
       const evRes = await sb.from("match_events")
-        .select("player_id, type, minute, detail, second_player_id")
+        .select("player_id, type, second_player_id")
         .in("match_id", playedMatches); 
           
       if (!evRes.error && evRes.data) {
         evRes.data.forEach(ev => {
-          if(!statsMap[ev.player_id]) statsMap[ev.player_id] = { pres:0, gol:0, assist:0, tiri:0, gialli:0, rossi:0 };
-          
-          const st = statsMap[ev.player_id];
-          
-          switch(ev.type) {
-            case 'goal': st.gol++; break;
-            case 'assist': st.assist++; break;
-            case 'shot': st.tiri++; break;
-            case 'yellow': 
-              if(ev.detail === '2') st.rossi++; 
-              else st.gialli++; 
-              break;
-            case 'red': st.rossi++; break;
-          }
+          if(!statsMap[ev.player_id]) statsMap[ev.player_id] = { pres:0, gol:0, assist:0 };
+          if(ev.type === 'goal') statsMap[ev.player_id].gol++;
+          if(ev.type === 'assist') statsMap[ev.player_id].assist++;
         });
       }
     }
-  } catch(e) {
-    console.warn("Errore caricamento stats reali:", e);
-  }
+  } catch(e) { console.warn("Stats load error:", e); }
 
+  const presCount = ROSA_DATA.filter(p => ATT_STATE[p.id]?.present).length;
+  const assCount = ROSA_DATA.length - presCount;
+  const apartCount = ROSA_DATA.filter(p => ATT_STATE[p.id]?.present && !ATT_STATE[p.id]?.with_team).length;
+  
+  const ac = $("attCount");
+  if(ac) ac.innerHTML = `<div style="text-align:center;font-weight:800;color:#1e3a8a;margin-bottom:12px;font-size:13px;background:#eff6ff;padding:6px;border-radius:8px">
+    ✅ ${presCount} Presenti · ❌ ${assCount} Assenti · 🟧 ${apartCount} A parte
+  </div>`;
+
+  const ag = $("attGrid");
+  if(!ag) return;
+
+  let html = '<div class="cardsGrid">'; 
+
+  ROSA_DATA.forEach(function(p){
+    const s = ATT_STATE[p.id];
+    const isPresent = s?.present;
+    const st = statsMap[p.id] || { pres:0, gol:0, assist:0 };
+    
+    let colorClass = isPresent ? "gold" : "red";
+    let statusBadge = isPresent 
+      ? (s.with_team ? '<span class="statusBadge present">✅ PRESENTE</span>' : '<span class="statusBadge apart">🟧 A PARTE</span>')
+      : '<span class="statusBadge absent">❌ ASSENTE</span>';
+
+    const photoHtml = p.photo_url 
+      ? `<img src="${p.photo_url}" alt="">` 
+      : `${(p.first_name||"")[0]}${(p.last_name||"")[0]}`;
+
+    // Stats integrate nella card colorata
+    const statsInline = `
+      <div class="statsInline">
+        <div class="siItem"><span class="siVal">${st.pres}</span><span class="siLbl">PRES</span></div>
+        <div class="siItem"><span class="siVal">${st.gol}</span><span class="siLbl">GOL</span></div>
+        <div class="siItem"><span class="siVal">${st.assist}</span><span class="siLbl">AST</span></div>
+      </div>
+    `;
+
+    // Card bianca inferiore: solo azioni extra / motivazione
+    let bottomCard = '';
+    if(isPresent){
+      bottomCard = `
+        <div class="bottomCard">
+          <div class="bcActions">
+            <button class="bcBtn ${s.with_team?'active':''}" onclick="event.stopPropagation();setTeamCard('${p.id}',true)">👥 Gruppo</button>
+            <button class="bcBtn ${!s.with_team?'active orange':''}" onclick="event.stopPropagation();setTeamCard('${p.id}',false)">🚧 Da solo</button>
+            <button class="bcBtn blue" onclick="event.stopPropagation();openSheet('${p.id}')">📝 Note</button>
+          </div>
+        </div>
+      `;
+    } else {
+      const motiviList = ["Malato","Infortunato","Viaggio","Scuola","Famiglia","Permesso","Altro"];
+      const currentReason = s.reason || "";
+      let optionsStr = '<option value="">— Motivo assenza —</option>';
+      motiviList.forEach(m => { optionsStr += `<option value="${m}" ${currentReason===m?'selected':''}>${m}</option>`; });
+
+      bottomCard = `
+        <div class="bottomCard absence">
+          <label>MOTIVAZIONE</label>
+          <select onchange="event.stopPropagation();setReason('${p.id}', this.value)">
+            ${optionsStr}
+          </select>
+        </div>
+      `;
+    }
+
+    html += `
+      <div class="cardWrapCompact">
+        <div class="futCardPremium ${colorClass}" onclick="tapCard('${p.id}')">
+          <div class="fcTopRow">
+            <img class="fcLogoMini" src="${clubLogo()}" alt="logo">
+            <span class="fcNumMini">#${p.jersey_number || "-"}</span>
+          </div>
+          <div class="fcPhotoBig">${photoHtml}</div>
+          <div class="fcNameBig">${p.last_name} ${(p.first_name||"")[0]}.</div>
+          ${statusBadge}
+          ${statsInline}
+          <div class="shineEffect"></div>
+        </div>
+        ${bottomCard}
+      </div>
+    `;
+  });
+
+  html+='</div>';
+  ag.innerHTML=html;
+}
   // --- 2. RENDERING UI ---
   const presCount = ROSA_DATA.filter(p => ATT_STATE[p.id]?.present).length;
   const assCount = ROSA_DATA.length - presCount;

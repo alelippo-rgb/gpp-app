@@ -148,148 +148,140 @@ nav button.on{color:#1e3a8a}
 .authWrap{max-width:380px;margin:30px auto}
 .authWrap .card h2{justify-content:center}
 
-/* ===== SUPER CARD STILE FUT (GRIGLIA) ===== */
+/* ===== PREMIUM CARD LAYOUT (TOPPS CHROME STYLE) ===== */
 .cardsGrid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); 
-  gap:12px;
-  padding:10px 0;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:14px;
+  padding:8px 0;
 }
 
-/* NUOVO STILE OUTER CARD (CORONA + CONTENUTO) */
-.outerCardWrap{
+.cardWrapCompact{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  width:100%;
+  max-width:170px;
+  margin:0 auto;
+}
+
+/* CARD PRINCIPALE COLORATA */
+.futCardPremium{
   position:relative;
   width:100%;
-  max-width:170px; /* Leggermente più largo per stare comodi */
-  margin:0 auto;
-  background:#fff;
-  border:1px solid #e2e8f0;
-  border-radius:16px;
-  padding:15px 10px 10px; /* Spazio extra sopra per la corona */
-  box-shadow:0 4px 12px rgba(0,0,0,.08);
+  aspect-ratio:3/4.2; /* leggermente più alta per compattezza */
+  border-radius:14px;
+  overflow:hidden;
+  cursor:pointer;
+  box-shadow:0 6px 16px rgba(0,0,0,.18), inset 0 0 0 1px rgba(255,255,255,.25);
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:8px;
-  transition:transform .2s ease;
-}
-.outerCardWrap:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.12)}
-
-/* LA CORONA GRANDE IN ALTO */
-.bigCrown{
-  position:absolute;
-  top:-12px; /* Esce leggermente fuori dal bordo superiore */
-  left:50%;
-  transform:translateX(-50%);
-  font-size:28px; /* Dimensione importante */
-  z-index:10;
-  filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));
-  line-height:1;
-}
-.goldCrown{color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,.8)}
-.silverCrown{color:#c0c0c0;text-shadow:0 0 10px rgba(192,192,192,.8)}
-.redCrown{color:#ef4444;text-shadow:0 0 10px rgba(239,68,68,.6)}
-
-/* LA CARD FUT INTERNA (Quella colorata classica) */
-.innerFutCard{
-  width:100%;
-  aspect-ratio:3/4;
-  border-radius:12px;
-  overflow:hidden;
-  position:relative;
-  cursor:pointer;
-  box-shadow:inset 0 0 0 2px rgba(255,255,255,.4), 0 4px 8px rgba(0,0,0,.15);
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between;
-  padding:8px 4px;
-  text-align:center;
+  padding:10px 8px 12px;
   color:#fff;
   user-select:none;
+  transition:transform .2s ease, box-shadow .2s ease;
 }
-/* Gradienti specifici per la card interna */
-.innerFutCard.gold{background:linear-gradient(160deg,#fef08a 0%,#eab308 40%,#a16207 100%);color:#422006}
-.innerFutCard.silver{background:linear-gradient(160deg,#f1f5f9 0%,#cbd5e1 40%,#64748b 100%);color:#1e293b}
-.innerFutCard.red{background:linear-gradient(160deg,#fecaca 0%,#ef4444 40%,#7f1d1d 100%);color:#fff}
+.futCardPremium:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.25)}
+.futCardPremium:active{transform:scale(.97)}
 
-.fcHeader{display:flex;justify-content:space-between;align-items:flex-start;width:100%;padding:0 4px;z-index:2}
-.fcLogo{width:20px;height:20px;object-fit:contain;opacity:.9;filter:drop-shadow(0 1px 2px rgba(0,0,0,.2))}
-.fcNum{font-size:22px;font-weight:900;line-height:.9;text-shadow:0 2px 4px rgba(0,0,0,.2)}
+/* Gradienti Premium */
+.futCardPremium.gold{background:linear-gradient(165deg,#fef9c3 0%,#eab308 45%,#a16207 100%);color:#422006}
+.futCardPremium.silver{background:linear-gradient(165deg,#f8fafc 0%,#cbd5e1 45%,#64748b 100%);color:#1e293b}
+.futCardPremium.red{background:linear-gradient(165deg,#fee2e2 0%,#ef4444 45%,#7f1d1d 100%);color:#fff}
 
-.fcBody{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;z-index:2}
-.fcPhoto{
-  width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.3);
-  border:2px solid rgba(255,255,255,.6);overflow:hidden;
+/* RIFLESSO ANIMATO (SHINE) */
+.shineEffect{
+  position:absolute;top:0;left:-150%;width:100%;height:100%;
+  background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,.22) 45%,transparent 80%);
+  transform:skewX(-25deg);
+  animation:premiumShine 5s infinite ease-in-out;
+  pointer-events:none;z-index:1;
+}
+@keyframes premiumShine{
+  0%{left:-150%}
+  20%{left:150%}
+  100%{left:150%}
+}
+
+/* HEADER COMPATTO */
+.fcTopRow{
+  width:100%;display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:6px;z-index:2;position:relative;
+}
+.fcLogoMini{width:22px;height:22px;object-fit:contain;opacity:.95;filter:drop-shadow(0 1px 2px rgba(0,0,0,.2))}
+.fcNumMini{font-size:18px;font-weight:900;line-height:1;text-shadow:0 1px 3px rgba(0,0,0,.25)}
+
+/* FOTO XXL CENTRATA */
+.fcPhotoBig{
+  width:72px;height:72px;border-radius:50%;
+  background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.5);
+  overflow:hidden;margin:4px 0 6px;z-index:2;position:relative;
   display:flex;align-items:center;justify-content:center;
-  font-size:18px;font-weight:900;color:inherit;
+  font-size:24px;font-weight:900;color:inherit;
+  box-shadow:0 4px 10px rgba(0,0,0,.15);
 }
-.fcPhoto img{width:100%;height:100%;object-fit:cover}
-.fcName{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90%;text-shadow:0 1px 2px rgba(0,0,0,.3)}
-.fcRoleTag{font-size:8px;font-weight:800;padding:2px 6px;border-radius:4px;background:rgba(0,0,0,.2);backdrop-filter:blur(2px);border:1px solid rgba(255,255,255,.3);text-transform:uppercase}
+.fcPhotoBig img{width:100%;height:100%;object-fit:cover}
 
-/* GRIGLIA STATISTICHE REALI SOTTO LA CARD */
-.statMiniGrid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:4px;
-  width:100%;
-  background:#f8fafc;
-  border:1px solid #e2e8f0;
-  border-radius:8px;
-  padding:6px;
+/* NOME GRANDE */
+.fcNameBig{
+  font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.4px;
+  text-align:center;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  text-shadow:0 1px 2px rgba(0,0,0,.25);margin-bottom:6px;z-index:2;position:relative;
 }
-.smItem{text-align:center;display:flex;flex-direction:column;gap:2px}
-.smVal{font-size:14px;font-weight:900;color:#1e293b;line-height:1}
-.smLbl{font-size:7px;font-weight:700;text-transform:uppercase;color:#64748b;letter-spacing:.5px}
-.yellowTxt{color:#ca8a04!important}
-.redTxt{color:#dc2626!important}
 
-/* RIQUADRO AZIONI IN FONDO */
-.actionBox{
-  display:flex;
-  gap:4px;
-  width:100%;
-  margin-top:4px;
+/* BADGE STATO */
+.statusBadge{
+  font-size:9px;font-weight:800;padding:3px 8px;border-radius:20px;
+  background:rgba(0,0,0,.2);backdrop-filter:blur(3px);border:1px solid rgba(255,255,255,.3);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;z-index:2;position:relative;
 }
-.abBtn{
-  flex:1;
-  padding:6px 2px;
-  border:none;
-  border-radius:6px;
-  font-size:9px;
-  font-weight:800;
-  cursor:pointer;
-  background:#fff;
-  color:#475569;
-  box-shadow:0 1px 3px rgba(0,0,0,.1);
-  border:1px solid #cbd5e1;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:2px;
-  transition:all .2s;
-}
-.abBtn.active{background:#16a34a;color:#fff;border-color:#15803d}
-.abBtn.orange.active{background:#d97706;color:#fff;border-color:#b45309}
-.abBtn.blue{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
-.abBtn:hover{transform:scale(1.05)}
+.statusBadge.present{background:rgba(22,163,74,.25);border-color:rgba(22,163,74,.5)}
+.statusBadge.apart{background:rgba(217,119,6,.25);border-color:rgba(217,119,6,.5)}
+.statusBadge.absent{background:rgba(220,38,38,.25);border-color:rgba(220,38,38,.5)}
 
-.absenceReasonBox{
-  width:100%;
-  margin-top:4px;
-  padding:4px;
-  background:#fef2f2;
-  border:1px dashed #fca5a5;
-  border-radius:6px;
+/* STATS INLINE DENTRO LA CARD */
+.statsInline{
+  width:100%;display:flex;justify-content:space-around;
+  background:rgba(0,0,0,.12);border-radius:8px;padding:5px 2px;
+  backdrop-filter:blur(2px);border:1px solid rgba(255,255,255,.15);
+  z-index:2;position:relative;margin-top:auto;
 }
-.absenceReasonBox label{
-  display:block;
-  font-size:8px;
-  font-weight:800;
-  color:#991b1b;
-  text-transform:uppercase;
-  margin-bottom:2px;
-  text-align:center;
+.siItem{text-align:center;display:flex;flex-direction:column;gap:1px}
+.siVal{font-size:15px;font-weight:900;line-height:1}
+.siLbl{font-size:7px;font-weight:700;text-transform:uppercase;opacity:.85;letter-spacing:.5px}
+
+/* CARD BIANCA INFERIORE */
+.bottomCard{
+  background:#fff;border:1px solid #e2e8f0;border-radius:10px;
+  padding:8px;box-shadow:0 2px 6px rgba(0,0,0,.06);
+  position:relative;overflow:hidden;
+}
+.bottomCard::after{
+  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,.5) 50%,transparent 100%);
+  animation:softShine 7s infinite ease-in-out;pointer-events:none;
+}
+@keyframes softShine{0%{left:-100%}30%{left:100%}100%{left:100%}}
+
+.bcActions{display:flex;gap:4px}
+.bcBtn{
+  flex:1;padding:5px 2px;border:none;border-radius:6px;font-size:9px;font-weight:800;cursor:pointer;
+  background:#f8fafc;color:#475569;border:1px solid #cbd5e1;transition:all .2s;
+}
+.bcBtn.active{background:#16a34a;color:#fff;border-color:#15803d}
+.bcBtn.orange.active{background:#d97706;color:#fff;border-color:#b45309}
+.bcBtn.blue{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+.bcBtn:hover{transform:scale(1.03)}
+
+.bottomCard.absence{background:#fef2f2;border-color:#fecaca}
+.bottomCard.absence label{
+  display:block;font-size:8px;font-weight:800;color:#991b1b;text-transform:uppercase;
+  text-align:center;margin-bottom:4px;letter-spacing:.5px;
+}
+.bottomCard.absence select{
+  width:100%;padding:5px;border-radius:6px;border:1px solid #fca5a5;
+  background:#fff;color:#991b1b;font-weight:700;font-size:11px;text-align:center;
 }
 </style>
 </head>
@@ -546,7 +538,7 @@ nav button.on{color:#1e3a8a}
     </div>
   </div>
 
-  <div class="view hidden" id="viewDoc">
+  <div class="view hidden" id="viewDoc
     <div class="card">
       <h2>📄 Documenti di gara</h2>
       <div class="btns2" style="margin:0 0 10px">
